@@ -110,7 +110,7 @@ const Dishes = () => {
                             onClick={() => handleDishClick(dish)}
                             className="btn btn-sm mt-2 btn-outline-primary"
                           >
-                            Add Ingredient
+                            set qty
                           </button>
                         </p>
                         <p className="mb-0">
