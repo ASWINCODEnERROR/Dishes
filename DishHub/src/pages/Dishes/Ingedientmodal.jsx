@@ -6,10 +6,8 @@ import Swal from "sweetalert2";
 import Dropdown from "react-bootstrap/Dropdown";
 
 const IngedientModal = ({ isOpen, onClose, dish }) => {
-
   const [selectedIngredient, setSelectedIngredient] = useState(null);
-  const [ingredientQuantity, selectedIngredientQuantity] = useState("");
-    
+  const [ingredientQuantity, setIngredientQuantity] = useState({});
 
   const fetchAllIngredients = async () => {
     const response = await ApiCall("get", "/ing");
@@ -31,6 +29,14 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
   };
 
 
+  const isAnyIngredientUnavailable = () => {
+    if (!ingredientsData?.ingredients) return true;
+    
+    return ingredientsData.ingredients.some(({ ingredient }) => {
+      return !ingredient || ingredient.stockQuantity == null || ingredient.stockQuantity <= 0;
+    });
+  };
+  
 
   const {
     data: allIngredientsData,
@@ -39,7 +45,7 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
   } = useQuery({
     queryKey: ["allIngredients"],
     queryFn: fetchAllIngredients,
-    enabled: isOpen, 
+    enabled: isOpen,
   });
 
   const {
@@ -54,7 +60,11 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
 
   const handleAddIngredient = async () => {
     if (!selectedIngredient || !ingredientQuantity) {
-      Swal.fire("Error", "Please select an ingredient and enter a quantity.", "error");
+      Swal.fire(
+        "Error",
+        "Please select an ingredient and enter a quantity.",
+        "error"
+      );
       return;
     }
 
@@ -78,8 +88,6 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
       Swal.fire("Error", "Failed to add ingredient.", "error");
     }
   };
-
-
 
   const handleDeleteIngredient = (dishId, ingredientId) => {
     console.log("Dish ID:::::::::::::::::::", dishId);
@@ -116,10 +124,8 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
           })
           .catch((error) => {
             if (error.response) {
-             
               console.error("API Error:", error.response.data);
             } else {
-              
               console.error("Error:", error.message);
             }
             Swal.fire("Error", "Failed to delete the ingredient.", "error");
@@ -154,19 +160,32 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
           <>
             <h5>Ingredients:</h5>
             <ul className="list-group">
-              {ingredientsData.ingredients.map(
+              {ingredientsData.ingredients?.map(
                 ({ _id, ingredient, stockQuantity }) => (
                   <li
                     key={_id}
                     className="list-group-item d-flex justify-content-between align-items-center"
                   >
                     <div>
-                      <span>{ingredient.name}</span>
-                      {/* <span>({stockQuantity} g)</span> */}
-                      <span>({ingredient.stockQuantity}g)</span>
-                      {/* {item.name} ({item.stockQuantity} g) */}
-                      {/* <span>{stockQuantity} g</span> */}
+                      {/* Check if the ingredient exists before rendering */}
+                      {ingredient ? (
+                        <>
+                          <span>{ingredient.name}</span>
+                          <span>
+                            ({ingredient.stockQuantity || stockQuantity} g)
+                          </span>
+                        </>
+                      ) : (
+                        <span>ingredient is available</span>
+                      )}
                     </div>
+                    {/* <div> */}
+                    {/* <span>{ingredient.name}</span> */}
+                    {/* <span>({stockQuantity} g)</span> */}
+                    {/* <span>({ingredient.stockQuantity}g)</span> */}
+                    {/* {item.name} ({item.stockQuantity} g) */}
+                    {/* <span>{stockQuantity} g</span> */}
+                    {/* </div> */}
 
                     <input
                       type="number"
@@ -194,19 +213,19 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
           </>
         )}
       </Modal.Body>
-      <Modal.Footer >
+      <Modal.Footer>
         <button className="btn btn-secondary" onClick={onClose}>
           Close
         </button>
-        
 
-        
         <button
           onClick={() => {
             ingredientsData.ingredients.forEach(({ _id, quantity }) => {
               handleCartQtySubmit(_id, quantity);
+              
             });
           }}
+          disabled={isAnyIngredientUnavailable()}
           className="btn btn-sm btn-outline-primary"
         >
           start cooking

@@ -28,14 +28,14 @@ const Ingredients = () => {
         const response = await ApiCall("delete", `/ing/${id}`);
         if (response.status) {
           queryClient.invalidateQueries(["ingredients"]);
-          Swal.fire('Deleted!', `${name} has been deleted.`, 'success'); // Show success message
-          console.log(`Deleted ingredient with name: ${name}`);
+          queryClient.invalidateQueries(["dishes"]); // Invalidate dishes query if necessary
+          Swal.fire('Deleted!', `${name} has been deleted.`, 'success');
         } else {
           throw new Error(response.message);
         }
       } catch (error) {
         console.error("Error deleting ingredient", error.message);
-        Swal.fire('Error!', `Failed to delete ${name}: ${error.message}`, 'error'); // Show error message
+        Swal.fire('Error!', `Failed to delete ${name}: ${error.message}`, 'error');
       }
     }
   };
