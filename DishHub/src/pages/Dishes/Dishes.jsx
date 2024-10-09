@@ -6,11 +6,8 @@ import { useState } from "react";
 import Ingredients from "../Ingredients/Ingredients";
 import EditDish from "./EditDish";
 import CreateDish from "./CreateDish";
-
+import { Link } from "react-router-dom";
 const Dishes = () => {
-
-   
-
   const fetchDishes = async () => {
     const response = await ApiCall("get", "/dishes");
     console.log("Fetching dishes...");
@@ -34,10 +31,10 @@ const Dishes = () => {
     setSelectedDish(null);
   };
 
-  const handleEditClick = (dishId)=>{
+  const handleEditClick = (dishId) => {
     setSelectedDish(dishId);
     setEditModalOpen(true);
-  }
+  };
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["dishes"],
@@ -63,16 +60,17 @@ const Dishes = () => {
               <div className="heading">Category: Dishes</div>
               <div>
                 <button
-                  onClick={() => setCreateDishModalOpen(true)} 
+                  onClick={() => setCreateDishModalOpen(true)}
                   className="btn btn-sm mb-5 btn-outline-primary "
                 >
                   Add Dish
                 </button>
-                <button
-                className="btn btn-sm mb-5 btn-outline-primary ms-2"
+                <Link
+                  to="/ingredients"
+                  className="btn btn-sm mb-5 btn-outline-primary ms-2"
                 >
-                  ingredients
-                </button>
+                  Ingredients
+                </Link>
               </div>
             </div>
           </div>
@@ -117,7 +115,7 @@ const Dishes = () => {
                         </p>
                         <p className="mb-0">
                           <button
-                            onClick={()=> handleEditClick(dish._id)}
+                            onClick={() => handleEditClick(dish._id)}
                             // onClick={() => console.log(dish)}
                             className="btn btn-sm mt-2 btn-outline-secondary"
                           >
@@ -151,20 +149,19 @@ const Dishes = () => {
         onClose={handleCloseModal}
         dish={selectedDish}
       />
-     {editModalOpen && selectedDish && (
+      {editModalOpen && selectedDish && (
         <EditDish
           show={editModalOpen}
           onHide={handleCloseModal}
-          dishId={selectedDish} // Pass the selected dish ID
+          dishId={selectedDish}
         />
       )}
       <CreateDish
-        show={createDishModalOpen}             // Show the modal based on state
-        onHide={() => setCreateDishModalOpen(false)}  // Hide the modal on close
+        show={createDishModalOpen}
+        onHide={() => setCreateDishModalOpen(false)}
       />
     </>
   );
 };
 
 export default Dishes;
-
