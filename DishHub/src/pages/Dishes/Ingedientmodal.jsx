@@ -176,16 +176,10 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
                           </span>
                         </>
                       ) : (
-                        <span>ingredient is available</span>
+                        <span>ingredient is unavailable</span>
                       )}
                     </div>
-                    {/* <div> */}
-                    {/* <span>{ingredient.name}</span> */}
-                    {/* <span>({stockQuantity} g)</span> */}
-                    {/* <span>({ingredient.stockQuantity}g)</span> */}
-                    {/* {item.name} ({item.stockQuantity} g) */}
-                    {/* <span>{stockQuantity} g</span> */}
-                    {/* </div> */}
+                   
 
                     <input
                       type="number"

@@ -6,10 +6,10 @@ import { ApiCall } from "../../services/ApiCall";
 const Createinc = ({ show, onHide }) => {
   const queryClient = useQueryClient();
 
-  // Updated state for the new ingredient with stockQuantity
+ 
   const [newIngredient, setNewIngredient] = useState({
     name: "",
-    stockQuantity: 0, // New field for stock quantity
+    stockQuantity: 0, 
   });
 
   // Function to create a new ingredient using mutation
