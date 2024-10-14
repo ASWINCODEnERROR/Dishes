@@ -59,7 +59,11 @@ const Dishes = () => {
         }
       } catch (error) {
         console.error("Error deleting dish:", error);
-        Swal.fire("Error!", `Failed to delete ${name}: ${error.message}`, "error");
+        Swal.fire(
+          "Error!",
+          `Failed to delete ${name}: ${error.message}`,
+          "error"
+        );
       }
     }
   };
@@ -165,19 +169,6 @@ const Dishes = () => {
                   </div>
                 ))}
               </ul>
-
-              <div className="row text-start pt-5 border-top">
-                <div className="col-md-12">
-                  <div className="custom-pagination">
-                    <span>1</span>
-                    <a href="#">2</a>
-                    <a href="#">3</a>
-                    <a href="#">4</a>
-                    <span>...</span>
-                    <a href="#">15</a>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -199,7 +190,7 @@ const Dishes = () => {
         onHide={() => setCreateDishModalOpen(false)}
       />
     </>
-  );
+  ); 
 };
 
 export default Dishes;

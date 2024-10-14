@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
-import Createinc from "./Createinc";
+// import Createinc from "./Createinc";
 import Swal from "sweetalert2";
 import EditInc from "./EditInc";
 
@@ -176,7 +176,7 @@ console.log(selectedIngredient,"///////////////////////////////////////")
             </div>
           </div>
         </div>
-        <Createinc show={modalVisible} onHide={() => setModalVisible(false)} />
+        {/* <Createinc show={modalVisible} onHide={() => setModalVisible(false)} /> */}
           
         {/* {selectedIngredient && ( */}
           <EditInc

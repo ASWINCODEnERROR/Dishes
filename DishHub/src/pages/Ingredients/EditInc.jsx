@@ -15,7 +15,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
   const { isLoading, error } = useQuery({
     queryKey: ["ingredient", ingredientId],
     queryFn: () => ApiCall("get", `/ing/${ingredientId}`),
-    enabled: !!ingredientId,
+    enabled: !!ingredientId, // Ensures it only runs if ingredientId is provided
     onSuccess: (data) => {
       if (data.status) {
         setIngredientDetails({
@@ -30,14 +30,22 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
 
   const updateIngredientMutation = useMutation({
     mutationFn: (updatedIngredient) =>
-      ApiCall("put", `/ing/${ingredientId}`, updatedIngredient),
+      ApiCall(
+        ingredientId ? "put" : "post",
+        `/ing/${ingredientId || ""}`,
+        updatedIngredient
+      ),
     onSuccess: () => {
-      queryClient.invalidateQueries(["ingredients"]);
+      queryClient.invalidateQueries(["ingredients"]); // Make sure the query key matches the one used for fetching
       Swal.fire("Success", "Ingredient updated successfully", "success");
       onHide(); // Close the modal
     },
     onError: (err) => {
-      Swal.fire("Error", err.message || "Failed to update ingredient", "error");
+      Swal.fire(
+        "Error",
+        err?.message || "Failed to update ingredient",
+        "error"
+      );
     },
   });
 
@@ -53,35 +61,14 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
         stockQuantity: ingredientDatas?.stockQuantity || 0,
       });
     }
-  }, [show, ingredientDatas]);
+  }, [show, ingredientDatas, ingredientId]); // Ensure ingredientId is part of dependency
 
-  const updateIngredient = async (updatedData) => {
-    // Determine if we're updating or adding based on the presence of ingredientId
-    const method = ingredientId ? "put" : "post";
-    const endpoint = ingredientId
-      ? `/dishes/${ingredientId}/add-ing`
-      : `/ing`;
-  
-    const response = await ApiCall(method, endpoint, {
-      ingredients: [
-        {
-          ingredientId: updatedData.ingredientId,
-          newQuantity: updatedData.newQuantity,
-        },
-      ],
-    });
-  
-    if (response.status) {
-      return response.data;
-    } else {
-      throw new Error(response.message);
-    }
-  };
-  
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>{ingredientId? "Update Ingredient":"Add Ingredient"}</Modal.Title>
+        <Modal.Title>
+          {ingredientId ? "Update Ingredient" : "Add Ingredient"}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {isLoading ? (
@@ -114,7 +101,9 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
                 onChange={(e) =>
                   setIngredientDetails({
                     ...ingredientDetails,
-                    stockQuantity: parseInt(e.target.value, 10) || 0,
+                    stockQuantity: isNaN(parseInt(e.target.value, 10))
+                      ? 0
+                      : parseInt(e.target.value, 10),
                   })
                 }
                 className="form-control"
@@ -122,18 +111,23 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
                 min="0"
               />
             </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={updateIngredientMutation.isLoading}
-            >
-              {updateIngredientMutation.isLoading ? "Updating..." : "Update Ingredient"}
-            </button>
           </form>
         )}
       </Modal.Body>
       <Modal.Footer>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={updateIngredientMutation.isLoading}
+        >
+          {updateIngredientMutation.isLoading
+            ? ingredientId
+              ? "Updating..."
+              : "Adding..."
+            : ingredientId
+            ? "Update Ingredient"
+            : "Add Ingredient"}
+        </button>
         <button className="btn btn-secondary" onClick={onHide}>
           Close
         </button>
