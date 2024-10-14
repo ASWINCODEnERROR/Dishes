@@ -16,8 +16,12 @@ export const ApiCall = async (method, endPoint, data = {}, params = {}, is_formd
       data,
       headers,
     });
+    
     return { status: true, data: res.data };
+    
   } catch (error) {
+
+    
     console.log(error);
     if (!error.response) {
       return {

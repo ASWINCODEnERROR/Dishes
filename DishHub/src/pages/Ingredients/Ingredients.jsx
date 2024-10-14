@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
 import Createinc from "./Createinc";
 import Swal from "sweetalert2";
+import EditInc from "./EditInc";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -10,50 +11,45 @@ const Ingredients = () => {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedIngredient, setSelectedIngredient] = useState(null);
-
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [selectedIngredient, setSelectedIngredient] = useState({});
+console.log(selectedIngredient,"///////////////////////////////////////")
   const handleDelete = async (id, name) => {
     const result = await Swal.fire({
       title: "Are you sure you want to delete this ingredient?",
       text: `You are about to delete ${name}. This action cannot be undone.`,
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, cancel it!',
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel it!",
     });
-  
+
     if (result.isConfirmed) {
       try {
         const response = await ApiCall("delete", `/ing/${id}`);
         if (response.status) {
           queryClient.invalidateQueries(["ingredients"]);
-          queryClient.invalidateQueries(["dishes"]); // Invalidate dishes query if necessary
-          Swal.fire('Deleted!', `${name} has been deleted.`, 'success');
+          queryClient.invalidateQueries(["dishes"]); 
+          Swal.fire("Deleted!", `${name} has been deleted.`, "success");
         } else {
           throw new Error(response.message);
         }
       } catch (error) {
         console.error("Error deleting ingredient", error.message);
-        Swal.fire('Error!', `Failed to delete ${name}: ${error.message}`, 'error');
+        Swal.fire(
+          "Error!",
+          `Failed to delete ${name}: ${error.message}`,
+          "error"
+        );
       }
     }
   };
-  
 
-  const handleUpdate = async () => {
-    try {
-      const response = await ApiCall("put", `/ing/${ingredient._id}`, {
-        stockQuantity,
-      });
-      if (response.status) {
-        onclose();
-      } else {
-        throw new Error(response.message);
-      }
-    } catch (error) {
-      console.error("updateing ingredient", error.message);
-    }
+  const handleUpdate = (ingredient) => {
+    setEditModalVisible(true); 
+    console.log("Updating ingredient:", ingredient); 
+    setSelectedIngredient(ingredient); 
+  
   };
 
   const fetchIngredients = async () => {
@@ -86,10 +82,6 @@ const Ingredients = () => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  // const handleDelete = (id) => {
-  //   console.log(`Delete ingredient with ID: ${id}`);
-  // };
-
   return (
     <div className="section search-result-wrap">
       <div className="container">
@@ -98,7 +90,8 @@ const Ingredients = () => {
             <div className="heading">Category: Ingredients</div>
             <div>
               <button
-                onClick={() => setModalVisible(true)}
+                // onClick={() => setModalVisible(true)}
+                onClick={() => handleUpdate()}
                 className="btn btn-sm mb-5 btn-outline-primary "
               >
                 Add Ingredient
@@ -184,9 +177,22 @@ const Ingredients = () => {
           </div>
         </div>
         <Createinc show={modalVisible} onHide={() => setModalVisible(false)} />
+          
+        {/* {selectedIngredient && ( */}
+          <EditInc
+            show={editModalVisible}
+            onHide={() => {
+              setEditModalVisible(false);
+              setSelectedIngredient(null); // Reset selected ingredient on modal close
+            }}
+            ingredientId={selectedIngredient?._id || ''} // Ensure this is correct
+            ingredientDatas={selectedIngredient} // Pass the ingredient data to EditInc
+          />
+        {/* )} */}
       </div>
     </div>
   );
 };
 
 export default Ingredients;
+ 

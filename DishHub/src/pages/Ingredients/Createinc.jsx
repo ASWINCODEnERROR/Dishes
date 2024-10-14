@@ -1,20 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
 
-const Createinc = ({ show, onHide }) => {
+const EditInc = ({ show, onHide, ingredientId }) => {
   const queryClient = useQueryClient();
-
- 
-  const [newIngredient, setNewIngredient] = useState({
-    name: "",
-    stockQuantity: 0, 
+  
+  
+  const [ingredientData, setIngredientData] = useState({
+    ingredientId: ingredientId,
+    newQuantity: 0,
   });
 
-  // Function to create a new ingredient using mutation
-  const createIngredient = async (ingredient) => {
-    const response = await ApiCall("post", "/ing", ingredient);
+ 
+  const fetchIngredient = async () => {
+    const response = await ApiCall("get", `/ing/${ingredientId}`);
     if (response.status) {
       return response.data;
     } else {
@@ -22,74 +22,112 @@ const Createinc = ({ show, onHide }) => {
     }
   };
 
-  // Mutation hook for creating the ingredient
-  const createIngredientMutation = useMutation({
-    mutationFn: createIngredient,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["ingredients"]); // Invalidate the query to refresh ingredient list
-      onHide(); // Close the modal after success
-      setNewIngredient({ name: "", stockQuantity: 0 }); // Reset form
+  
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["ingredient", ingredientId],
+    queryFn: fetchIngredient,
+    enabled: show,
+    onSuccess: (data) => {
+      
+      setIngredientData({
+        ingredientId: data._id,
+        newQuantity: data.stockQuantity,
+      });
     },
   });
 
-  // Handle form submission
+  
+  const updateIngredient = async (updatedData) => {
+    const response = await ApiCall("put", `/dishes/${ingredientId}/add-ing`, {
+      ingredients: [
+        {
+          ingredientId: updatedData.ingredientId,
+          newQuantity: updatedData.newQuantity,
+        },
+      ],
+    });
+    if (response.status) {
+      return response.data;
+    } else {
+      throw new Error(response.message);
+    }
+  };
+
+  
+  const updateIngredientMutation = useMutation({
+    mutationFn: updateIngredient,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["ingredients"]); // Invalidate the query to refresh the ingredient list
+      onHide();
+      setIngredientData({ ingredientId: ingredientId, newQuantity: 0 }); // Reset form
+    },
+  });
+
+  
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    createIngredientMutation.mutate(newIngredient);
+    updateIngredientMutation.mutate(ingredientData);
+  };
+
+  
+  const handleInputChange = (e) => {
+    setIngredientData({
+      ...ingredientData,
+      newQuantity: parseInt(e.target.value, 10) || 0, 
+    });
   };
 
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Create New Ingredient</Modal.Title>
+        <Modal.Title>Edit Ingredient</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <form onSubmit={handleFormSubmit}>
-          <div className="mb-3">
-            <label>Name</label>
-            <input
-              type="text"
-              value={newIngredient.name}
-              onChange={(e) =>
-                setNewIngredient({ ...newIngredient, name: e.target.value })
-              }
-              className="form-control"
-              required
-            />
-          </div>
+        {isLoading ? (
+          <p>Loading ingredient data...</p>
+        ) : error ? (
+          <p className="text-danger">Error: {error.message}</p>
+        ) : (
+          <form onSubmit={handleFormSubmit}>
+            <div className="mb-3">
+              <label>Ingredient ID</label>
+              <input
+                type="text"
+                value={ingredientData.ingredientId}
+                className="form-control"
+                readOnly // ID is read-only
+              />
+            </div>
 
-          {/* New field for stockQuantity */}
-          <div className="mb-3">
-            <label>Stock Quantity</label>
-            <input
-              type="number"
-              value={newIngredient.stockQuantity}
-              onChange={(e) =>
-                setNewIngredient({
-                  ...newIngredient,
-                  stockQuantity: parseInt(e.target.value, 10) || 0, // Prevent NaN
-                })
-              }
-              className="form-control"
-              required
-              min="0" // Ensure stock quantity cannot be negative
-            />
-          </div>
+            <div className="mb-3">
+              <label>Stock Quantity</label>
+              <input
+                type="number"
+                value={ingredientData.newQuantity}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+                min="0" // Ensure stock quantity cannot be negative
+              />
+            </div>
 
-          {/* Submit button inside the form */}
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={createIngredientMutation.isLoading} // Disable button while loading
-          >
-            {createIngredientMutation.isLoading ? "Saving..." : "Save Ingredient"}
-          </button>
-        </form>
-        {createIngredientMutation.isError && (
-          <p className="text-danger">Error: {createIngredientMutation.error.message}</p>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={updateIngredientMutation.isLoading} // Disable button while loading
+            >
+              {updateIngredientMutation.isLoading ? "Saving..." : "Save Changes"}
+            </button>
+          </form>
         )}
-        {createIngredientMutation.isSuccess && (
-          <p className="text-success">Ingredient created successfully!</p>
+
+        {updateIngredientMutation.isError && (
+          <p className="text-danger">
+            Error: {updateIngredientMutation.error.message}
+          </p>
+        )}
+        {updateIngredientMutation.isSuccess && (
+          <p className="text-success">Ingredient updated successfully!</p>
         )}
       </Modal.Body>
       <Modal.Footer>
@@ -101,4 +139,4 @@ const Createinc = ({ show, onHide }) => {
   );
 };
 
-export default Createinc;
+export default EditInc;
