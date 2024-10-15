@@ -6,10 +6,9 @@ import Swal from "sweetalert2";
 import Dropdown from "react-bootstrap/Dropdown";
 
 const IngedientModal = ({ isOpen, onClose, dish }) => {
-
   const [selectedIngredient, setSelectedIngredient] = useState(null);
-  const [ingredientQuantity, selectedIngredientQuantity] = useState("");
-    
+  const [ingredientQuantity, setIngredientQuantity] = useState({});
+  const [cookingStarted, setCookingStarted] = useState(false); // Track if cooking has started
 
   const fetchAllIngredients = async () => {
     const response = await ApiCall("get", "/ing");
@@ -30,7 +29,13 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
     }
   };
 
-
+  const isAnyIngredientUnavailable = () => {
+    if (!ingredientsData?.ingredients) return true;
+    
+    return ingredientsData.ingredients.some(({ ingredient }) => {
+      return !ingredient || ingredient.stockQuantity == null || ingredient.stockQuantity <= 0;
+    });
+  };
 
   const {
     data: allIngredientsData,
@@ -39,7 +44,7 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
   } = useQuery({
     queryKey: ["allIngredients"],
     queryFn: fetchAllIngredients,
-    enabled: isOpen, 
+    enabled: isOpen,
   });
 
   const {
@@ -54,7 +59,11 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
 
   const handleAddIngredient = async () => {
     if (!selectedIngredient || !ingredientQuantity) {
-      Swal.fire("Error", "Please select an ingredient and enter a quantity.", "error");
+      Swal.fire(
+        "Error",
+        "Please select an ingredient and enter a quantity.",
+        "error"
+      );
       return;
     }
 
@@ -79,12 +88,7 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
     }
   };
 
-
-
   const handleDeleteIngredient = (dishId, ingredientId) => {
-    console.log("Dish ID:::::::::::::::::::", dishId);
-    console.log("Ingredient ID:::::::::::::", ingredientId);
-
     Swal.fire({
       title: "Are you sure you want to delete this ingredient?",
       text: "You will not be able to recover this ingredient.",
@@ -95,37 +99,30 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        ApiCall("delete", `/dishes/${dishId}/ingredients/${ingredientId}`);
-        console.log(
-          `Deleting ingredient from URL: /dishes/${dishId}/ingredients/${ingredientId}`
-        );
-
-        console
-          .log("00000000000")
+        ApiCall("delete", `/dishes/${dishId}/ingredients/${ingredientId}`)
           .then(() => {
-            Swal.fire(
-              "Deleted!",
-              "The ingredient has been removed.",
-              "success"
-            );
-            console.log(
-              dish._id,
-              ingredientId,
-              "asdfasdasdfasdfasdfasddfadfafa"
-            );
+            Swal.fire("Deleted!", "The ingredient has been removed.", "success");
           })
           .catch((error) => {
-            if (error.response) {
-             
-              console.error("API Error:", error.response.data);
-            } else {
-              
-              console.error("Error:", error.message);
-            }
             Swal.fire("Error", "Failed to delete the ingredient.", "error");
           });
       }
     });
+  };
+
+  const handleStartCooking = () => {
+    if (isAnyIngredientUnavailable()) {
+      Swal.fire("Error", "Some ingredients are unavailable.", "error");
+      return;
+    }
+
+    Swal.fire("Success", "Cooking started!", "success");
+    setCookingStarted(true); // Set cooking as started
+  };
+
+  const handleStopCooking = () => {
+    Swal.fire("Success", "Cooking stopped!", "success");
+    setCookingStarted(false); // Set cooking as stopped
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -154,39 +151,49 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
           <>
             <h5>Ingredients:</h5>
             <ul className="list-group">
-              {ingredientsData.ingredients.map(
+              {ingredientsData.ingredients?.map(
                 ({ _id, ingredient, stockQuantity }) => (
                   <li
                     key={_id}
                     className="list-group-item d-flex justify-content-between align-items-center"
                   >
                     <div>
-                      <span>{ingredient.name}</span>
-                      {/* <span>({stockQuantity} g)</span> */}
-                      <span>({ingredient.stockQuantity}g)</span>
-                      {/* {item.name} ({item.stockQuantity} g) */}
-                      {/* <span>{stockQuantity} g</span> */}
+                      {ingredient ? (
+                        <>
+                          <span>{ingredient.name}</span>
+                          <span> ({ingredient.stockQuantity || stockQuantity} g)</span>
+                        </>
+                      ) : (
+                        <span>Ingredient is unavailable</span>
+                      )}
                     </div>
 
-                    <input
-                      type="number"
-                      // value={cartQty[_id] || ""}
-                      // onChange={(e) => handleCartQtyChange(_id, e.target.value)}
-                      placeholder="qty"
-                      style={{ width: "50px", marginRight: "10px" }}
-                    />
-                    <span
-                      onClick={() =>
-                        handleDeleteIngredient(dish._id, ingredient._id)
-                      }
-                      style={{
-                        cursor: "pointer",
-                        color: "red",
-                        marginLeft: "10px",
-                      }}
-                    >
-                      X
-                    </span>
+                    {/* Conditionally render the delete button */}
+                    {!cookingStarted ? (
+                      <span
+                        onClick={() =>
+                          handleDeleteIngredient(dish._id, ingredient._id)
+                        }
+                        style={{
+                          cursor: "pointer",
+                          color: "red",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        X
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          cursor: "not-allowed",
+                          color: "gray",
+                          marginLeft: "10px",
+                        }}
+                        title="Cannot delete ingredient while cooking"
+                      >
+                        X
+                      </span>
+                    )}
                   </li>
                 )
               )}
@@ -194,23 +201,28 @@ const IngedientModal = ({ isOpen, onClose, dish }) => {
           </>
         )}
       </Modal.Body>
-      <Modal.Footer >
+      <Modal.Footer>
         <button className="btn btn-secondary" onClick={onClose}>
           Close
         </button>
-        
 
-        
-        <button
-          onClick={() => {
-            ingredientsData.ingredients.forEach(({ _id, quantity }) => {
-              handleCartQtySubmit(_id, quantity);
-            });
-          }}
-          className="btn btn-sm btn-outline-primary"
-        >
-          start cooking
-        </button>
+        {/* Toggle cooking button */}
+        {cookingStarted ? (
+          <button
+            onClick={handleStopCooking}
+            className="btn btn-sm btn-outline-danger"
+          >
+            Stop Cooking
+          </button>
+        ) : (
+          <button
+            onClick={handleStartCooking}
+            disabled={isAnyIngredientUnavailable()}
+            className="btn btn-sm btn-outline-primary"
+          >
+            Start Cooking
+          </button>
+        )}
       </Modal.Footer>
     </Modal>
   );

@@ -16,8 +16,12 @@ export const ApiCall = async (method, endPoint, data = {}, params = {}, is_formd
       data,
       headers,
     });
+    
     return { status: true, data: res.data };
+    
   } catch (error) {
+
+    
     console.log(error);
     if (!error.response) {
       return {
@@ -32,21 +36,3 @@ export const ApiCall = async (method, endPoint, data = {}, params = {}, is_formd
   }
 };
 
-
-
-
-// import axios from 'axios';
-
-// const apiClient = axios.create({
-//   baseURL: 'http://localhost:5001/api', // base URL for your API
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-// });
-
-// export const getIngredients = () => apiClient.get('/ing');
-// export const getDishes = () => apiClient.get('/dishes');
-// export const getDish = (id) => apiClient.get(`/dish/${id}`);
-// export const updateDishQuantity = (dishId, ingredientId, newQuantity) => 
-//   apiClient.put(`/dishes/${dishId}/ingredients/${ingredientId}`, { newQuantity });
-// // Add other API calls as needed

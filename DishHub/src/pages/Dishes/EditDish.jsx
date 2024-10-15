@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
 import { ApiCall } from "../../services/ApiCall";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import Swal from "sweetalert2";
+
 
 const EditDish = ({ show, onHide, dishId }) => {
   const queryClient = useQueryClient();
@@ -55,7 +57,19 @@ const EditDish = ({ show, onHide, dishId }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["dishes"]);
+      Swal.fire({
+        title: 'Success!',
+        text: 'Dish updated successfully!',
+        icon: 'success',
+      });
       onHide();
+    },
+    onError: (error) => {
+      Swal.fire({
+        title: 'Error!',
+        text: `Failed to update dish: ${error.message}`,
+        icon: 'error',
+      });
     },
   });
 

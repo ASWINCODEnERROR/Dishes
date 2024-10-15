@@ -1,24 +1,62 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
-import { PrimeReactProvider, PrimeReactContext } from "primereact/api";
-import Createinc from "./Createinc";
+// import Createinc from "./Createinc";
+import Swal from "sweetalert2";
+import EditInc from "./EditInc";
 
-
-const ITEMS_PER_PAGE = 5; 
+const ITEMS_PER_PAGE = 5;
 
 const Ingredients = () => {
+  const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [selectedIngredient, setSelectedIngredient] = useState({});
+console.log(selectedIngredient,"///////////////////////////////////////")
+  const handleDelete = async (id, name) => {
+    const result = await Swal.fire({
+      title: "Are you sure you want to delete this ingredient?",
+      text: `You are about to delete ${name}. This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel it!",
+    });
 
+    if (result.isConfirmed) {
+      try {
+        const response = await ApiCall("delete", `/ing/${id}`);
+        if (response.status) {
+          queryClient.invalidateQueries(["ingredients"]);
+          queryClient.invalidateQueries(["dishes"]); 
+          Swal.fire("Deleted!", `${name} has been deleted.`, "success");
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        console.error("Error deleting ingredient", error.message);
+        Swal.fire(
+          "Error!",
+          `Failed to delete ${name}: ${error.message}`,
+          "error"
+        );
+      }
+    }
+  };
 
-
+  const handleUpdate = (ingredient) => {
+    setEditModalVisible(true); 
+    console.log("Updating ingredient:", ingredient); 
+    setSelectedIngredient(ingredient); 
+  
+  };
 
   const fetchIngredients = async () => {
     console.log("Fetching ingredients...");
     const response = await ApiCall("get", "/ing");
     if (response.status) {
-      console.log("THE RESPONSE DATA",response?.data )
+      console.log("THE RESPONSE DATA", response?.data);
       return response.data;
     } else {
       throw new Error(response.message);
@@ -40,18 +78,9 @@ const Ingredients = () => {
     );
   }
 
-  
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  const handleDelete = (id) => {
-    console.log(`Delete ingredient with ID: ${id}`);
-  };
-
-  const handleUpdate = (id) => {
-    console.log(`Update ingredient with ID: ${id}`);
-  };
 
   return (
     <div className="section search-result-wrap">
@@ -60,10 +89,11 @@ const Ingredients = () => {
           <div className="col-12 d-flex justify-content-between align-items-center">
             <div className="heading">Category: Ingredients</div>
             <div>
-              <button 
-              onClick={()=>setModalVisible(true)}
-              className="btn btn-sm mb-5 btn-outline-primary ">
-                
+              <button
+                // onClick={() => setModalVisible(true)}
+                onClick={() => handleUpdate()}
+                className="btn btn-sm mb-5 btn-outline-primary "
+              >
                 Add Ingredient
               </button>
             </div>
@@ -101,14 +131,12 @@ const Ingredients = () => {
                       <td className="py-2 px-4 border border-gray-300">
                         <button
                           className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
-                          onClick={() =>
-                            handleUpdate(ingredient.id || ingredient._id)
-                          }
+                          onClick={() => handleUpdate(ingredient)} // Pass the whole ingredient object
                         >
-                          <i className="fas fa-edit text-black"></i>
+                          <i className="fas fa-edit text-black">edit</i>
                         </button>
                         <button
-                          className="bg-red-500 text-white px-3 py-1 rounded"
+                          className="bg-red-500 text-black px-3 py-1 rounded"
                           onClick={() =>
                             handleDelete(ingredient.id || ingredient._id)
                           }
@@ -148,10 +176,23 @@ const Ingredients = () => {
             </div>
           </div>
         </div>
-        <Createinc show={modalVisible} onHide={() => setModalVisible(false)} />
+        {/* <Createinc show={modalVisible} onHide={() => setModalVisible(false)} /> */}
+          
+        {/* {selectedIngredient && ( */}
+          <EditInc
+            show={editModalVisible}
+            onHide={() => {
+              setEditModalVisible(false);
+              setSelectedIngredient(null); // Reset selected ingredient on modal close
+            }}
+            ingredientId={selectedIngredient?._id || ''} // Ensure this is correct
+            ingredientDatas={selectedIngredient} // Pass the ingredient data to EditInc
+          />
+        {/* )} */}
       </div>
     </div>
   );
 };
 
 export default Ingredients;
+ 

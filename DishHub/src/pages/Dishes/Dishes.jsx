@@ -1,16 +1,15 @@
 import React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
-import Ingedientmodal from "./Ingedientmodal";
+import Ingedientmodal from "./IngedientModal";
 import { useState } from "react";
-import Ingredients from "../Ingredients/Ingredients";
 import EditDish from "./EditDish";
 import CreateDish from "./CreateDish";
+import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
 
 const Dishes = () => {
-
-   
-
+  const queryClient = useQueryClient();
   const fetchDishes = async () => {
     const response = await ApiCall("get", "/dishes");
     console.log("Fetching dishes...");
@@ -34,10 +33,40 @@ const Dishes = () => {
     setSelectedDish(null);
   };
 
-  const handleEditClick = (dishId)=>{
+  const handleEditClick = (dishId) => {
     setSelectedDish(dishId);
     setEditModalOpen(true);
-  }
+  };
+
+  const handleDeleteDish = async (id, name) => {
+    const result = await Swal.fire({
+      title: "Are you sure you want to delete this ingredient?",
+      text: `do you want to delete ${name}.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await ApiCall("delete", `/dish/${id}`);
+        if (response && response.status) {
+          queryClient.invalidateQueries(["dishes"]);
+          Swal.fire("Deleted!", `${name} has been deleted.`, "success");
+        } else {
+          throw new Error(response.message || "Failed to delete the dish.");
+        }
+      } catch (error) {
+        console.error("Error deleting dish:", error);
+        Swal.fire(
+          "Error!",
+          `Failed to delete ${name}: ${error.message}`,
+          "error"
+        );
+      }
+    }
+  };
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["dishes"],
@@ -63,16 +92,17 @@ const Dishes = () => {
               <div className="heading">Category: Dishes</div>
               <div>
                 <button
-                  onClick={() => setCreateDishModalOpen(true)} 
+                  onClick={() => setCreateDishModalOpen(true)}
                   className="btn btn-sm mb-5 btn-outline-primary "
                 >
                   Add Dish
                 </button>
-                <button
-                className="btn btn-sm mb-5 btn-outline-primary ms-2"
+                <Link
+                  to="/ingredients"
+                  className="btn btn-sm mb-5 btn-outline-primary ms-2"
                 >
-                  ingredients
-                </button>
+                  Ingredients
+                </Link>
               </div>
             </div>
           </div>
@@ -112,16 +142,26 @@ const Dishes = () => {
                             onClick={() => handleDishClick(dish)}
                             className="btn btn-sm mt-2 btn-outline-primary"
                           >
-                            Add Ingredient
+                            set qty
                           </button>
                         </p>
-                        <p className="mb-0">
+                        <p className="mb-0 me-2">
                           <button
-                            onClick={()=> handleEditClick(dish._id)}
+                            onClick={() => handleEditClick(dish._id)}
                             // onClick={() => console.log(dish)}
                             className="btn btn-sm mt-2 btn-outline-secondary"
                           >
                             Edit
+                          </button>
+                        </p>
+                        <p className="mb-0">
+                          <button
+                            onClick={() =>
+                              handleDeleteDish(dish._id, dish.name)
+                            } // Pass both _id and name
+                            className="btn btn-sm mt-2 btn-outline-secondary"
+                          >
+                            Delete
                           </button>
                         </p>
                       </div>
@@ -129,19 +169,6 @@ const Dishes = () => {
                   </div>
                 ))}
               </ul>
-
-              <div className="row text-start pt-5 border-top">
-                <div className="col-md-12">
-                  <div className="custom-pagination">
-                    <span>1</span>
-                    <a href="#">2</a>
-                    <a href="#">3</a>
-                    <a href="#">4</a>
-                    <span>...</span>
-                    <a href="#">15</a>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -151,20 +178,19 @@ const Dishes = () => {
         onClose={handleCloseModal}
         dish={selectedDish}
       />
-     {editModalOpen && selectedDish && (
+      {editModalOpen && selectedDish && (
         <EditDish
           show={editModalOpen}
           onHide={handleCloseModal}
-          dishId={selectedDish} // Pass the selected dish ID
+          dishId={selectedDish}
         />
       )}
       <CreateDish
-        show={createDishModalOpen}             // Show the modal based on state
-        onHide={() => setCreateDishModalOpen(false)}  // Hide the modal on close
+        show={createDishModalOpen}
+        onHide={() => setCreateDishModalOpen(false)}
       />
     </>
-  );
+  ); 
 };
 
 export default Dishes;
-
