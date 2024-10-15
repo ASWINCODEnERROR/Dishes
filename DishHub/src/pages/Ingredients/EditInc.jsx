@@ -12,11 +12,11 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
     stockQuantity: ingredientDatas?.stockQuantity || 0,
   });
 
-  // Fetch ingredient details if ingredientId is present
+  
   const { isLoading, error } = useQuery({
     queryKey: ["ingredient", ingredientId],
     queryFn: () => ApiCall("get", `/ing/${ingredientId}`),
-    enabled: !!ingredientId, // Run only if ingredientId is provided
+    enabled: !!ingredientId, 
     onSuccess: (data) => {
       if (data.status) {
         setIngredientDetails({
@@ -29,7 +29,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
     },
   });
 
-  // Mutation for adding or updating ingredient
+  
   const updateIngredientMutation = useMutation({
     mutationFn: (updatedIngredient) =>
       ApiCall(
@@ -38,9 +38,9 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
         updatedIngredient
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries(["ingredients"]); // Invalidate the ingredients list
+      queryClient.invalidateQueries(["ingredients"]); 
       Swal.fire("Success", "Ingredient updated successfully", "success");
-      onHide(); // Close modal on success
+      onHide();
     },
     onError: (err) => {
       Swal.fire(
@@ -51,13 +51,12 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
     },
   });
 
-  // Form submit handler
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    updateIngredientMutation.mutate(ingredientDetails); // Trigger mutation
+    updateIngredientMutation.mutate(ingredientDetails);
   };
 
-  // Reset ingredient details on show
   useEffect(() => {
     if (show) {
       setIngredientDetails({
@@ -65,7 +64,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
         stockQuantity: ingredientDatas?.stockQuantity || 0,
       });
     }
-  }, [show, ingredientDatas, ingredientId]); // Reset when modal is shown
+  }, [show, ingredientDatas, ingredientId]);
 
   return (
     <Modal show={show} onHide={onHide} centered>
