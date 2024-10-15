@@ -12,10 +12,11 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
     stockQuantity: ingredientDatas?.stockQuantity || 0,
   });
 
+  // Fetch ingredient details if ingredientId is present
   const { isLoading, error } = useQuery({
     queryKey: ["ingredient", ingredientId],
     queryFn: () => ApiCall("get", `/ing/${ingredientId}`),
-    enabled: !!ingredientId, // Ensures it only runs if ingredientId is provided
+    enabled: !!ingredientId, // Run only if ingredientId is provided
     onSuccess: (data) => {
       if (data.status) {
         setIngredientDetails({
@@ -28,6 +29,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
     },
   });
 
+  // Mutation for adding or updating ingredient
   const updateIngredientMutation = useMutation({
     mutationFn: (updatedIngredient) =>
       ApiCall(
@@ -36,9 +38,9 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
         updatedIngredient
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries(["ingredients"]); // Make sure the query key matches the one used for fetching
+      queryClient.invalidateQueries(["ingredients"]); // Invalidate the ingredients list
       Swal.fire("Success", "Ingredient updated successfully", "success");
-      onHide(); // Close the modal
+      onHide(); // Close modal on success
     },
     onError: (err) => {
       Swal.fire(
@@ -49,11 +51,13 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
     },
   });
 
+  // Form submit handler
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    updateIngredientMutation.mutate(ingredientDetails);
+    updateIngredientMutation.mutate(ingredientDetails); // Trigger mutation
   };
 
+  // Reset ingredient details on show
   useEffect(() => {
     if (show) {
       setIngredientDetails({
@@ -61,7 +65,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
         stockQuantity: ingredientDatas?.stockQuantity || 0,
       });
     }
-  }, [show, ingredientDatas, ingredientId]); // Ensure ingredientId is part of dependency
+  }, [show, ingredientDatas, ingredientId]); // Reset when modal is shown
 
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -111,27 +115,27 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
                 min="0"
               />
             </div>
+            <div className="modal-footer">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={updateIngredientMutation.isLoading}
+              >
+                {updateIngredientMutation.isLoading
+                  ? ingredientId
+                    ? "Updating..."
+                    : "Adding..."
+                  : ingredientId
+                  ? "Update Ingredient"
+                  : "Add Ingredient"}
+              </button>
+              <button className="btn btn-secondary" onClick={onHide}>
+                Close
+              </button>
+            </div>
           </form>
         )}
       </Modal.Body>
-      <Modal.Footer>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={updateIngredientMutation.isLoading}
-        >
-          {updateIngredientMutation.isLoading
-            ? ingredientId
-              ? "Updating..."
-              : "Adding..."
-            : ingredientId
-            ? "Update Ingredient"
-            : "Add Ingredient"}
-        </button>
-        <button className="btn btn-secondary" onClick={onHide}>
-          Close
-        </button>
-      </Modal.Footer>
     </Modal>
   );
 };
