@@ -33,7 +33,6 @@ const IngredientModal = ({ isOpen, onClose, dish }) => {
     enabled: !!dish?._id && isOpen,
   });
 
-  // Update quantity state for each ingredient
   const handleQuantityChange = (ingredientId, newQuantity) => {
     setIngredientQuantities((prevQuantities) => ({
       ...prevQuantities,
@@ -60,7 +59,7 @@ const IngredientModal = ({ isOpen, onClose, dish }) => {
       if (response.status) {
         Swal.fire("Success", "Cooking started!", "success");
         setCookingStarted(true);
-        setElapsedTime(0); // Reset timer when cooking starts
+        setElapsedTime(0); 
       } else {
         throw new Error(response.message);
       }
@@ -83,8 +82,8 @@ const IngredientModal = ({ isOpen, onClose, dish }) => {
       if (response.status) {
         Swal.fire("Success", "Cooking stopped!", "success");
         setCookingStarted(false);
-        setTotalCookingTime((prevTime) => prevTime + elapsedTime); // Update total cooking time
-        setElapsedTime(0); // Reset elapsed time
+        setTotalCookingTime((prevTime) => prevTime + elapsedTime); 
+        setElapsedTime(0); 
       } else {
         throw new Error(response.message);
       }
@@ -119,10 +118,10 @@ const IngredientModal = ({ isOpen, onClose, dish }) => {
     let timer;
     if (cookingStarted) {
       timer = setInterval(() => {
-        setElapsedTime((prevTime) => prevTime + 1); // Increment time every second
+        setElapsedTime((prevTime) => prevTime + 1);
       }, 1000);
     }
-    return () => clearInterval(timer); // Cleanup interval on unmount or when cooking stops
+    return () => clearInterval(timer);
   }, [cookingStarted]);
 
   const formatTime = (seconds) => {
@@ -172,7 +171,7 @@ const IngredientModal = ({ isOpen, onClose, dish }) => {
 
                   {!cookingStarted ? (
                     <>
-                      <span style={{ marginLeft: "10px" }}>Qty:</span>
+                      <span style={{ marginRight: "20px" }}></span>
                       <input
                         type="number"
                         className="form-control"
@@ -181,8 +180,8 @@ const IngredientModal = ({ isOpen, onClose, dish }) => {
                           handleQuantityChange(ingredient._id, parseInt(e.target.value, 10))
                         }
                         min="0"
-                        placeholder="Enter new qty"
-                        style={{ width: "100px", marginLeft: "10px" }}
+                        placeholder=" qty"
+                        style={{ width: "70px", marginLeft: "100px" }}
                         required
                       />
                     </>

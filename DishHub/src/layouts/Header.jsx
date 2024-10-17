@@ -36,36 +36,9 @@ const Header = () => {
       <li className="active">
         <Link to="/history">History</Link>
       </li>
-      {/* <li className="active">
-        <Link to="/createDish">Create Dish</Link>
-      </li> */}
-                {/* <li className="active"><a href="index.html">Home</a></li>
-                <li className="active"><a href="index.html">Home</a></li>
-                <li className="active"><a href="index.html">Home</a></li> */}
-                <li className="has-children">
-                  <a href="category.html">Pages</a>
-                  <ul className="dropdown">
-                    <li><a href="search-result.html">Search Result</a></li>
-                    <li><a href="blog.html">Blog</a></li>
-                    <li><a href="single.html">Blog Single</a></li>
-                    <li><a href="category.html">Category</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                    <li><a href="#">Menu One</a></li>
-                    <li><a href="#">Menu Two</a></li>
-                    <li className="has-children">
-                      <a href="#">Dropdown</a>
-                      <ul className="dropdown">
-                        <li><a href="#">Sub Menu One</a></li>
-                        <li><a href="#">Sub Menu Two</a></li>
-                        <li><a href="#">Sub Menu Three</a></li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li><a href="category.html">Culture</a></li>
-                <li><a href="category.html">Business</a></li>
-                <li><a href="category.html">Politics</a></li>
+  
+               
+                
               </ul>
             </div>
             <div className="col-2 text-end">

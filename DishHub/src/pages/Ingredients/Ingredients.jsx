@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
-// import Createinc from "./Createinc";
 import Swal from "sweetalert2";
 import EditInc from "./EditInc";
 
@@ -11,9 +10,10 @@ const Ingredients = () => {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedIngredient, setSelectedIngredient] = useState({});
-console.log(selectedIngredient,"///////////////////////////////////////")
+  console.log(selectedIngredient, "///////////////////////////////////////");
+
   const handleDelete = async (id, name) => {
     const result = await Swal.fire({
       title: "Are you sure you want to delete this ingredient?",
@@ -29,7 +29,7 @@ console.log(selectedIngredient,"///////////////////////////////////////")
         const response = await ApiCall("delete", `/ing/${id}`);
         if (response.status) {
           queryClient.invalidateQueries(["ingredients"]);
-          queryClient.invalidateQueries(["dishes"]); 
+          queryClient.invalidateQueries(["dishes"]);
           Swal.fire("Deleted!", `${name} has been deleted.`, "success");
         } else {
           throw new Error(response.message);
@@ -46,10 +46,9 @@ console.log(selectedIngredient,"///////////////////////////////////////")
   };
 
   const handleUpdate = (ingredient) => {
-    setEditModalVisible(true); 
-    console.log("Updating ingredient:", ingredient); 
-    setSelectedIngredient(ingredient); 
-  
+    setEditModalVisible(true);
+    console.log("Updating ingredient:", ingredient);
+    setSelectedIngredient(ingredient);
   };
 
   const fetchIngredients = async () => {
@@ -74,7 +73,7 @@ console.log(selectedIngredient,"///////////////////////////////////////")
 
   if (error) {
     return (
-      <div className="text-red-600">An error occurred: {error.message}</div>
+      <div className="text-danger">An error occurred: {error.message}</div>
     );
   }
 
@@ -92,7 +91,7 @@ console.log(selectedIngredient,"///////////////////////////////////////")
               <button
                 // onClick={() => setModalVisible(true)}
                 onClick={() => handleUpdate()}
-                className="btn btn-sm mb-5 btn-outline-primary "
+                className="btn btn-sm mb-5 btn-outline-primary"
               >
                 Add Ingredient
               </button>
@@ -100,43 +99,37 @@ console.log(selectedIngredient,"///////////////////////////////////////")
           </div>
         </div>
         <div className="row posts-entry">
-          <div className="col-lg-12 borde red 1px">
+          <div className="col-lg-8">
             <div className="container mx-auto mt-5">
-              <table className="table-auto">
+              <table className="table table-striped table-bordered table-hover">
                 <thead>
-                  <tr className="bg-gray-200">
-                    <th className="py-2 px-4 border border-gray-300 text-left">
+                  <tr className="bg-light">
+                    <th scope="col" className="py-2 px-4">
                       Name
                     </th>
-                    <th className="py-2 px-4 border border-gray-300 text-left">
+                    <th scope="col" className="py-2 px-4">
                       Stock Quantity
                     </th>
-                    <th className="py-2 px-4 border border-gray-300 text-left">
+                    <th scope="col" className="py-2 px-4">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedData.map((ingredient) => (
-                    <tr
-                      key={ingredient.id || ingredient._id}
-                      className="hover:bg-gray-100"
-                    >
-                      <td className="py-2 px-4 border border-gray-300">
-                        {ingredient.name}
-                      </td>
-                      <td className="py-2 px-4 border border-gray-300">
-                        {ingredient.stockQuantity}
-                      </td>
-                      <td className="py-2 px-4 border border-gray-300">
+                    <tr key={ingredient.id || ingredient._id}>
+                      <td className="py-2 px-4">{ingredient.name}</td>
+                      <td className="py-2 px-4">{ingredient.stockQuantity}</td>
+                      <td className="py-2 px-4">
                         <button
-                          className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                          className="btn btn-primary btn-sm  " 
+                          style={{ marginRight: '8px' }} 
                           onClick={() => handleUpdate(ingredient)} // Pass the whole ingredient object
                         >
-                          <i className="fas fa-edit text-black">edit</i>
+                          <i className="fas fa-edit"> Edit</i>
                         </button>
                         <button
-                          className="bg-red-500 text-black px-3 py-1 rounded"
+                          className="btn btn-danger btn-sm ml-10"
                           onClick={() =>
                             handleDelete(ingredient.id || ingredient._id)
                           }
@@ -150,9 +143,9 @@ console.log(selectedIngredient,"///////////////////////////////////////")
               </table>
 
               {/* Pagination Controls */}
-              <div className="mt-4 flex justify-between">
+              <div className="mt-4 d-flex justify-content-between">
                 <button
-                  className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
+                  className="btn btn-secondary"
                   onClick={() =>
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
@@ -164,7 +157,7 @@ console.log(selectedIngredient,"///////////////////////////////////////")
                   Page {currentPage} of {totalPages}
                 </span>
                 <button
-                  className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
+                  className="btn btn-secondary"
                   onClick={() =>
                     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
@@ -176,23 +169,19 @@ console.log(selectedIngredient,"///////////////////////////////////////")
             </div>
           </div>
         </div>
-        {/* <Createinc show={modalVisible} onHide={() => setModalVisible(false)} /> */}
-          
-        {/* {selectedIngredient && ( */}
-          <EditInc
-            show={editModalVisible}
-            onHide={() => {
-              setEditModalVisible(false);
-              setSelectedIngredient(null); // Reset selected ingredient on modal close
-            }}
-            ingredientId={selectedIngredient?._id || ''} // Ensure this is correct
-            ingredientDatas={selectedIngredient} // Pass the ingredient data to EditInc
-          />
-        {/* )} */}
+
+        <EditInc
+          show={editModalVisible}
+          onHide={() => {
+            setEditModalVisible(false);
+            setSelectedIngredient(null);
+          }}
+          ingredientId={selectedIngredient?._id || ""}
+          ingredientDatas={selectedIngredient}
+        />
       </div>
     </div>
   );
 };
 
 export default Ingredients;
- 
