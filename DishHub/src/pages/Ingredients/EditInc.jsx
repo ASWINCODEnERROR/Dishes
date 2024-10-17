@@ -56,7 +56,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
     e.preventDefault();
     updateIngredientMutation.mutate(ingredientDetails);
   };
-
+  
   useEffect(() => {
     if (show) {
       setIngredientDetails({

@@ -2,6 +2,7 @@ import React from "react";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
 import Ingedientmodal from "./IngedientModal";
+// import IngredientModal from "./Ingedientmodal";
 import { useState } from "react";
 import EditDish from "./EditDish";
 import CreateDish from "./CreateDish";
