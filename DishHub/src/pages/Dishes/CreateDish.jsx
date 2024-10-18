@@ -51,7 +51,7 @@ const CreateDish = ({ show, onHide }) => {
     onError:(error) =>{
       Swal.fire({
         icon:'error',
-        title:'error',
+        title:"u can't create dish withou ingredients ",
         showConfirmButton:true,
       })
     }
@@ -64,11 +64,31 @@ const CreateDish = ({ show, onHide }) => {
     setNewDish({ ...newDish, ingredients: updatedIngredients });
   };
 
+  const validateForm= () =>{
+    if (!newDish.name.trim()){
+      Swal.fire("Error","Dish name is required!!!","error");
+      return false;
+    }
+    const hasValidIngredients = newDish.ingredients.some(ingredient => ingredient.ingredient);
+
+    if (!hasValidIngredients){
+      Swal.fire("Error","You must add at least one valid ingredient!", "error");
+      return false;
+    }
+    return true;
+  }
+
   const handleFormSubmit = () => {
+   
+    if (validateForm()){
+     
     createDishMutation.mutate(newDish);
+    }
   };
   if (ingredientsLoading) return <div>Loading...</div>;
   if (ingredientsError) return <div>Error loading ingredients</div>;
+
+  const selectedIngredientIds = newDish.ingredients.map(ing => ing.ingredient);
 
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -83,6 +103,7 @@ const CreateDish = ({ show, onHide }) => {
             value={newDish.name}
             onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
             className="form-control mb-3"
+            required
           />
         </div>
         {newDish.ingredients.map((ingredient, index) => (
@@ -96,7 +117,7 @@ const CreateDish = ({ show, onHide }) => {
               <option value="">Select Ingredient</option>
               {ingredientData &&
                 ingredientData.map((ing) => (
-                  <option key={ing._id} value={ing._id}>
+                  <option key={ing._id} value={ing._id} disabled={selectedIngredientIds.includes(ing._id)}>
                     {ing.name}
                   </option>
                 ))}

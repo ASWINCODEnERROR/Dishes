@@ -39,7 +39,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
       ),
     onSuccess: () => {
       queryClient.invalidateQueries(["ingredients"]); 
-      Swal.fire("Success", "Ingredient updated successfully", "success");
+      Swal.fire("Success", "Ingredient updated successfully!!!!!!!!!!1", "success");
       onHide();
     },
     onError: (err) => {
@@ -115,6 +115,9 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
               />
             </div>
             <div className="modal-footer">
+            <button className="btn btn-secondary" type="button" onClick={onHide}>
+                Close
+              </button>
               <button
                 type="submit"
                 className="btn btn-primary"
@@ -127,9 +130,6 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
                   : ingredientId
                   ? "Update Ingredient"
                   : "Add Ingredient"}
-              </button>
-              <button className="btn btn-secondary" onClick={onHide}>
-                Close
               </button>
             </div>
           </form>

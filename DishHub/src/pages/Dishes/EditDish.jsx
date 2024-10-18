@@ -79,15 +79,37 @@ const EditDish = ({ show, onHide, dishId }) => {
     updatedIngredients[index][name] = value;
     setUpdatedDish({ ...updatedDish, ingredients: updatedIngredients });
   };
+  const validateForm = () => {
+    if (!updatedDish.name.trim()) {
+      Swal.fire("Error", "Dish name is required!", "error");
+      return false;
+    }
+  
+    const hasValidIngredients = updatedDish.ingredients.some(
+      (ingredient) => ingredient.ingredient
+    );
+  
+    if (!hasValidIngredients) {
+      Swal.fire("Error", "You must add at least one valid ingredient!", "error");
+      return false;
+    }
+  
+    // If all validations pass, return true
+    return true;
+  };
 
   const handleFormSubmit = () => {
+    if(validateForm()){
     updateDishMutation.mutate(updatedDish);
+    }
   };
 
   
 
   if (dishLoading || ingredientsLoading) return <div>Loading...</div>;
   if (dishError) return <div>Error loading dish data</div>;
+
+  const selectedIngredientIds = updatedDish.ingredients.map(ing => ing.ingredient);
 
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -104,6 +126,7 @@ const EditDish = ({ show, onHide, dishId }) => {
               setUpdatedDish({ ...updatedDish, name: e.target.value })
             }
             className="form-control mb-3"
+            required
           />
         </div>
 
@@ -121,7 +144,7 @@ const EditDish = ({ show, onHide, dishId }) => {
               <option value="">Select Ingredient</option>
               {ingredientData &&
                 ingredientData.map((ing) => (
-                  <option key={ing._id} value={ing._id}>
+                  <option key={ing._id} value={ing._id} disabled={selectedIngredientIds.includes(ing._id) && ingredient.ingredient !== ing._id} >
                     {ing.name}
                   </option>
                 ))}
@@ -161,7 +184,7 @@ const EditDish = ({ show, onHide, dishId }) => {
         </button>
       </Modal.Body>
       <Modal.Footer>
-        <button className="btn btn-secondary" onClick={onHide}>
+        <button className="btn btn-secondary" type="button" onClick={onHide}>
           Close
         </button>
         <button className="btn btn-primary" onClick={handleFormSubmit}>
