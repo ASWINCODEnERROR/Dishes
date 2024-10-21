@@ -1,9 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
 import Ingedientmodal from "./IngedientModal";
-// import IngredientModal from "./Ingedientmodal";
-import { useState } from "react";
 import EditDish from "./EditDish";
 import CreateDish from "./CreateDish";
 import Swal from "sweetalert2";
@@ -11,24 +9,40 @@ import { Link } from "react-router-dom";
 
 const Dishes = () => {
   const queryClient = useQueryClient();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [createDishModalOpen, setCreateDishModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedDish, setSelectedDish] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+
   const fetchDishes = async () => {
-    const response = await ApiCall("get", "/dishes");
-    console.log("Fetching dishes...");
+    const response = await ApiCall(
+      "get",
+      `/dishes`,
+      {},params
+    );
     if (response.status) {
       return response.data;
     } else {
       throw new Error(response.message);
     }
   };
-  const [modalOpen, setModalOpen] = useState(false);
-  const [createDishModalOpen, setCreateDishModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedDish, setSelectedDish] = useState(null);
+
+  const [params, setParams] = useState({
+   
+    
+  });
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["dishes", params], 
+    queryFn: fetchDishes,
+  });
 
   const handleDishClick = (dish) => {
     setSelectedDish(dish);
     setModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedDish(null);
@@ -42,7 +56,7 @@ const Dishes = () => {
   const handleDeleteDish = async (id, name) => {
     const result = await Swal.fire({
       title: "Are you sure you want to delete this ingredient?",
-      text: `do you want to delete ${name}.`,
+      text: `Do you want to delete ${name}?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
@@ -59,38 +73,85 @@ const Dishes = () => {
           throw new Error(response.message || "Failed to delete the dish.");
         }
       } catch (error) {
-        console.error("Error deleting dish:", error);
-        Swal.fire(
-          "Error!",
-          `Failed to delete ${name}: ${error.message}`,
-          "error"
-        );
+        Swal.fire("Error!", `Failed to delete ${name}: ${error.message}`, "error");
       }
     }
   };
 
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["dishes"],
-    queryFn: fetchDishes,
-  });
+  // Render loading state
+  // if (isLoading) return <div className="text-center text-lg">Loading...</div>;
 
-  if (isLoading) return <div className="text-center text-lg">Loading...</div>;
-  if (error)
+  // Render error state
+  if (error) {
     return (
       <div className="text-center text-red-500">
         Error loading dishes: {error.message}
       </div>
     );
+  }
 
-  if (!data || !Array.isArray(data))
+  // Render empty state
+  if (!data || !Array.isArray(data)) {
     return <div className="text-center text-gray-500">No dishes available</div>;
+  }
+
   return (
     <>
       <div className="section search-result-wrap">
         <div className="container">
           <div className="row">
             <div className="col-12 d-flex justify-content-between align-items-center">
-              <div className="heading">Category: Dishes</div>
+              <div className="heading">
+                Category: Dishes
+                <form
+                  action="#"
+                  className="search-form d-none d-lg-inline-block"
+                  style={{ position: "relative", width: "fit-content" }}
+                  // onSubmit={(e) => {
+                  //   e.preventDefault(); 
+                  // }}
+                >
+                  <input
+                    type="text"
+                    className="search-form"
+                    placeholder="Search..."
+                    onChange={(e) => {
+                      const value = e.target.value;
+       
+                      if (value.length === 1 && value[0] === " ") {
+                        e.target.value = "";
+                        return;
+                      }
+                     
+                      setParams({
+                        ...params,
+                        page: 1,
+                        searchQuery: value.trim(),
+                      });
+                    }}
+                    style={{
+                      border: "1px solid gray", 
+                      color: "black",
+                      margin: "10px 15px",
+                      paddingLeft: "35px",
+                      paddingRight: "10px",
+                      height: "40px",
+                      borderRadius: "5px",
+                    }}
+                  />
+                  <span
+                    className="bi bi-search"
+                    style={{
+                      color: "gray",
+                      position: "absolute",
+                      left: "25px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                </form>
+              </div>
               <div>
                 <button
                   onClick={() => setCreateDishModalOpen(true)}
@@ -107,10 +168,10 @@ const Dishes = () => {
               </div>
             </div>
           </div>
+
           <div className="row posts-entry">
             <div className="col-lg-8">
               <ul className="space-y-4">
-                {/* <div className="blog-entry d-flex blog-entry-search-item"> */}
                 {data.map((dish) => (
                   <div
                     key={dish._id}
@@ -120,7 +181,6 @@ const Dishes = () => {
                       href={`single.html?dishId=${dish._id}`}
                       className="img-link me-4"
                     >
-                      {/* <img src={dish.image || 'default_image.jpg'} alt={dish.name} className="img-fluid" /> */}
                       <img
                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIibPbOeDQQscm9g-fDNdCvROokQJukg8nYQ&s"
                         alt={dish.name}
@@ -149,7 +209,6 @@ const Dishes = () => {
                         <p className="mb-0 me-2">
                           <button
                             onClick={() => handleEditClick(dish._id)}
-                            // onClick={() => console.log(dish)}
                             className="btn btn-sm mt-2 btn-outline-secondary"
                           >
                             Edit
@@ -157,9 +216,7 @@ const Dishes = () => {
                         </p>
                         <p className="mb-0">
                           <button
-                            onClick={() =>
-                              handleDeleteDish(dish._id, dish.name)
-                            } // Pass both _id and name
+                            onClick={() => handleDeleteDish(dish._id, dish.name)}
                             className="btn btn-sm mt-2 btn-outline-secondary"
                           >
                             Delete
@@ -174,6 +231,8 @@ const Dishes = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
       <Ingedientmodal
         isOpen={modalOpen}
         onClose={handleCloseModal}
@@ -191,7 +250,7 @@ const Dishes = () => {
         onHide={() => setCreateDishModalOpen(false)}
       />
     </>
-  ); 
+  );
 };
 
 export default Dishes;

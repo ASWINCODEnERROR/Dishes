@@ -9197,7 +9197,7 @@ textarea.form-control-lg {
     height: 40px;
     background-color: #fff;
     margin-bottom: 0;
-    border-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.2) ;
     padding-left: 30px;
     color: #fff; }
     .search-form .form-control:active, .search-form .form-control:focus {
@@ -10503,3 +10503,30 @@ textarea {
       .site-footer .social li a:hover {
         background: #fff;
         color: #214252; }
+
+        /* .form-control::placeholder {
+          color: black;
+
+          border: 1px solid red;
+        } */
+
+
+
+        /* .form-search {
+          height: 54px;
+          border-color: red;
+          background-color: transparent !important;
+          margin-bottom: 10px; }
+          .form-search:active, .form-search:focus {
+            outline: none;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border-color: red !important; }
+          .form-search::-webkit-input-placeholder {
+            color: red; }
+          .form-search::-moz-placeholder {
+            color: red; }
+          .form-search:-ms-input-placeholder {
+            color: red}
+          .form-search:-moz-placeholder {
+            color:red } */
