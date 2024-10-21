@@ -15,19 +15,17 @@ const History = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
   
-  // State for search criteria
   const [searchDishName, setSearchDishName] = useState('');
   const [searchDate, setSearchDate] = useState(null);
   const [searchStatus, setSearchStatus] = useState('');
 
   const fetchHistory = async () => {
-    // Constructing the query parameters based on search inputs
     const params = new URLSearchParams();
     if (searchDishName) params.append('name', searchDishName);
-    if (searchDate) params.append('date', format(searchDate, "yyyy-MM-dd")); // Format date to yyyy-MM-dd
+    if (searchDate) params.append('date', format(searchDate, "yyyy-MM-dd")); 
     if (searchStatus) params.append('status', searchStatus);
-    params.append('page', page); // Include pagination
-    params.append('limit', limit); // Include limit
+    params.append('page', page);
+    params.append('limit', limit);
 
     const response = await ApiCall("get", `/dishes/history?${params.toString()}`);
     console.log("From the API response:", response);
@@ -55,11 +53,10 @@ const History = () => {
     setPage(1); 
   };
 
-  // Improved filtering logic for date
   const filteredDishes = dishes.filter(dish => {
     const matchesDishName = dish.name.toLowerCase().includes(searchDishName.toLowerCase());
-    const matchesDate = searchDate ? new Date(dish.updatedAt).toDateString() === searchDate.toDateString() : true; // Check if date matches
-    const matchesStatus = searchStatus ? dish.status.toLowerCase().includes(searchStatus.toLowerCase()) : true; // Check if status matches
+    const matchesDate = searchDate ? new Date(dish.updatedAt).toDateString() === searchDate.toDateString() : true;
+    const matchesStatus = searchStatus ? dish.status.toLowerCase().includes(searchStatus.toLowerCase()) : true; 
     return matchesDishName && matchesDate && matchesStatus;
   });
 
@@ -67,7 +64,6 @@ const History = () => {
     <div className="container mt-5">
       <h2 className="text-center mb-4">Time sheet</h2>
 
-      {/* Search Fields */}
       <div className="mb-4 d-flex align-items-center">
   <input
     type="text"
@@ -151,7 +147,6 @@ const History = () => {
         </table>
       </div>
 
-      {/* Pagination Controls */}
       <div className="d-flex justify-content-between mt-3">
         <button
           className={`btn btn-primary ${page === 1 ? "disabled" : ""}`}
