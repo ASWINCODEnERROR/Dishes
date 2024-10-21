@@ -10530,3 +10530,63 @@ textarea {
             color: red}
           .form-search:-moz-placeholder {
             color:red } */
+
+            .loading-spinner-container {
+              position: relative;
+              height: 200px; /* Adjust based on the size of your container */
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+            
+            .spinner {
+              border: 4px solid rgba(0, 0, 0, 0.1);
+              border-left-color: #3b82f6;
+              border-radius: 50%;
+              width: 40px;
+              height: 40px;
+              animation: spin 1s linear infinite;
+            }
+            
+            @keyframes spin {
+              to {
+                transform: rotate(360deg);
+              }
+            }
+/* styles.css */
+.error-message {
+  /* background-color: #f8d7da; Light red background */
+  /* background-color: #fff3cd; Light yellow background */
+
+  color: #721c24; /* Dark red text */
+  padding: 10px;
+  /* border: 1px solid #f5c6cb; Border similar to background color */
+  /* border-radius: 5px; */
+  margin: 20px 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+.no-dishes-message {
+  color: #856404; /* Dark yellow text */
+  padding: 10px;
+  border: 1px solid #ffeeba; /* Border similar to background color */
+  border-radius: 5px;
+  margin: 20px 0;
+  text-align: center;
+  font-weight: bold;
+}
+.search-input {
+  margin-right: 10px; /* Adjust spacing */
+  flex: 1; /* Allow the input fields to grow equally */
+}
+
+.search-input:last-child {
+  margin-right: 0; /* Remove margin on the last input */
+}
+
+            
+.form-control.history{
+  
+  width: 204px;
+}

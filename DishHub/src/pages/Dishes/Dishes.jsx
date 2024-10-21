@@ -7,6 +7,13 @@ import CreateDish from "./CreateDish";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 
+// Loading Spinner Component
+const LoadingSpinner = () => (
+  <div className="loading-spinner-container">
+    <div className="spinner"></div>
+  </div>
+);
+
 const Dishes = () => {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
@@ -14,28 +21,44 @@ const Dishes = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [params, setParams] = useState({});
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 100); 
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   const fetchDishes = async () => {
-    const response = await ApiCall(
-      "get",
-      `/dishes`,
-      {},params
-    );
-    if (response.status) {
-      return response.data;
-    } else {
-      throw new Error(response.message);
+    try {
+      const response = await ApiCall("get", `/dishes`, {}, { ...params, searchQuery: debouncedSearchTerm });
+  
+      if (!response.status) {
+        throw new Error(response.message || "Unexpected error occurred");
+      }
+  
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching dishes:", error);
+      if (error.response && error.response.status === 404) {
+        return []; 
+      }
+      throw new Error("Failed to fetch dishes.");
     }
   };
+  
+  
 
-  const [params, setParams] = useState({
-   
-    
-  });
   const { data, error, isLoading } = useQuery({
-    queryKey: ["dishes", params], 
+    queryKey: ["dishes", params, debouncedSearchTerm],
     queryFn: fetchDishes,
+    onError: (err) => {
+      // Set a message immediately when an error occurs
+      setNoDishesMessage('No matching dishes found. Please try a different search.');
+    },
   });
 
   const handleDishClick = (dish) => {
@@ -45,6 +68,7 @@ const Dishes = () => {
 
   const handleCloseModal = () => {
     setModalOpen(false);
+    setEditModalOpen(false);
     setSelectedDish(null);
   };
 
@@ -55,7 +79,7 @@ const Dishes = () => {
 
   const handleDeleteDish = async (id, name) => {
     const result = await Swal.fire({
-      title: "Are you sure you want to delete this ingredient?",
+      title: "Are you sure you want to delete this dish?",
       text: `Do you want to delete ${name}?`,
       icon: "warning",
       showCancelButton: true,
@@ -78,23 +102,6 @@ const Dishes = () => {
     }
   };
 
-  // Render loading state
-  // if (isLoading) return <div className="text-center text-lg">Loading...</div>;
-
-  // Render error state
-  if (error) {
-    return (
-      <div className="text-center text-red-500">
-        Error loading dishes: {error.message}
-      </div>
-    );
-  }
-
-  // Render empty state
-  if (!data || !Array.isArray(data)) {
-    return <div className="text-center text-gray-500">No dishes available</div>;
-  }
-
   return (
     <>
       <div className="section search-result-wrap">
@@ -107,30 +114,21 @@ const Dishes = () => {
                   action="#"
                   className="search-form d-none d-lg-inline-block"
                   style={{ position: "relative", width: "fit-content" }}
-                  // onSubmit={(e) => {
-                  //   e.preventDefault(); 
-                  // }}
                 >
                   <input
                     type="text"
                     className="search-form"
                     placeholder="Search..."
+                    value={searchTerm}
                     onChange={(e) => {
-                      const value = e.target.value;
-       
-                      if (value.length === 1 && value[0] === " ") {
-                        e.target.value = "";
-                        return;
-                      }
-                     
+                      setSearchTerm(e.target.value.trimStart());
                       setParams({
                         ...params,
                         page: 1,
-                        searchQuery: value.trim(),
                       });
                     }}
                     style={{
-                      border: "1px solid gray", 
+                      border: "1px solid gray",
                       color: "black",
                       margin: "10px 15px",
                       paddingLeft: "35px",
@@ -171,73 +169,90 @@ const Dishes = () => {
 
           <div className="row posts-entry">
             <div className="col-lg-8">
-              <ul className="space-y-4">
-                {data.map((dish) => (
-                  <div
-                    key={dish._id}
-                    className="blog-entry d-flex blog-entry-search-item"
-                  >
-                    <a
-                      href={`single.html?dishId=${dish._id}`}
-                      className="img-link me-4"
+              {/* Show loading spinner only in the container */}
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : error ? (
+                // Error block only if there's an error from API
+                <div className="error-message">
+                  The dish is unavailable
+                </div>
+              ) : data?.length === 0 ? (
+                // Empty dishes message for search with no result
+                <div className="no-dishes-message ">
+                                   The dish is unavailable
+                </div>
+              ) : (
+                <ul className="space-y-4">
+                  {data.map((dish) => (
+                    <div
+                      key={dish._id}
+                      className="blog-entry d-flex blog-entry-search-item"
                     >
-                      <img
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIibPbOeDQQscm9g-fDNdCvROokQJukg8nYQ&s"
-                        alt={dish.name}
-                        className="img-fluid"
-                      />
-                    </a>
-                    <div>
-                      <h2>
-                        <a href={`single.html?dishId=${dish._id}`}>
-                          {dish.name}
-                        </a>
-                      </h2>
-                      <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Unde, nobis ea quis inventore vel voluptas.
-                      </p>
-                      <div className="d-flex align-items-center">
-                        <p className="mb-0 me-2">
-                          <button
-                            onClick={() => handleDishClick(dish)}
-                            className="btn btn-sm mt-2 btn-outline-primary"
-                          >
-                            set qty
-                          </button>
+                      <a
+                        href={`single.html?dishId=${dish._id}`}
+                        className="img-link me-4"
+                      >
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIibPbOeDQQscm9g-fDNdCvROokQJukg8nYQ&s"
+                          alt={dish.name}
+                          className="img-fluid"
+                        />
+                      </a>
+                      <div>
+                        <h2>
+                          <a href={`single.html?dishId=${dish._id}`}>
+                            {dish.name}
+                          </a>
+                        </h2>
+                        <p>
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                          Unde, nobis ea quis inventore vel voluptas.
                         </p>
-                        <p className="mb-0 me-2">
-                          <button
-                            onClick={() => handleEditClick(dish._id)}
-                            className="btn btn-sm mt-2 btn-outline-secondary"
-                          >
-                            Edit
-                          </button>
-                        </p>
-                        <p className="mb-0">
-                          <button
-                            onClick={() => handleDeleteDish(dish._id, dish.name)}
-                            className="btn btn-sm mt-2 btn-outline-secondary"
-                          >
-                            Delete
-                          </button>
-                        </p>
+                        <div className="d-flex align-items-center">
+                          <p className="mb-0 me-2">
+                            <button
+                              onClick={() => handleDishClick(dish)}
+                              className="btn btn-sm mt-2 btn-outline-primary"
+                            >
+                              Set qty
+                            </button>
+                          </p>
+                          <p className="mb-0 me-2">
+                            <button
+                              onClick={() => handleEditClick(dish._id)}
+                              className="btn btn-sm mt-2 btn-outline-secondary"
+                            >
+                              Edit
+                            </button>
+                          </p>
+                          <p className="mb-0">
+                            <button
+                              onClick={() => handleDeleteDish(dish._id, dish.name)}
+                              className="btn btn-sm mt-2 btn-outline-secondary"
+                            >
+                              Delete
+                            </button>
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </ul>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Modals */}
-      <Ingedientmodal
-        isOpen={modalOpen}
-        onClose={handleCloseModal}
-        dish={selectedDish}
-      />
+      {modalOpen && selectedDish && (
+        <Ingedientmodal
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          dish={selectedDish}
+        />
+      )}
       {editModalOpen && selectedDish && (
         <EditDish
           show={editModalOpen}
@@ -245,10 +260,12 @@ const Dishes = () => {
           dishId={selectedDish}
         />
       )}
-      <CreateDish
-        show={createDishModalOpen}
-        onHide={() => setCreateDishModalOpen(false)}
-      />
+      {createDishModalOpen && (
+        <CreateDish
+          show={createDishModalOpen}
+          onHide={() => setCreateDishModalOpen(false)}
+        />
+      )}
     </>
   );
 };
