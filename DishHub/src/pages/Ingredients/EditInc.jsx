@@ -39,7 +39,7 @@ const EditInc = ({ show, onHide, ingredientId, ingredientDatas }) => {
       ),
     onSuccess: () => {
       queryClient.invalidateQueries(["ingredients"]); 
-      Swal.fire("Success", "Ingredient updated successfully!!!!!!!!!!1", "success");
+      Swal.fire("Success", "Ingredient updated successfully!!!!!!!!!!", "success");
       onHide();
     },
     onError: (err) => {
