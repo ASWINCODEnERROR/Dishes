@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ApiCall } from "../../services/ApiCall";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import Spinner from "react-bootstrap/Spinner"; 
+import Spinner from "react-bootstrap/Spinner";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 
@@ -14,26 +14,41 @@ const History = () => {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  
-  const [searchDishName, setSearchDishName] = useState('');
+
+  const [searchDishName, setSearchDishName] = useState("");
   const [searchDate, setSearchDate] = useState(null);
-  const [searchStatus, setSearchStatus] = useState('');
+  const [searchStatus, setSearchStatus] = useState("");
 
   const fetchHistory = async () => {
     const params = new URLSearchParams();
-    if (searchDishName) params.append('name', searchDishName);
-    if (searchDate) params.append('date', format(searchDate, "yyyy-MM-dd")); 
-    if (searchStatus) params.append('status', searchStatus);
-    params.append('page', page);
-    params.append('limit', limit);
+    if (searchDishName) params.append("name", searchDishName);
+    if (searchDate) params.append("date", format(searchDate, "yyyy-MM-dd"));
+    if (searchStatus) params.append("status", searchStatus);
+    params.append("page", page);
+    params.append("limit", limit);
 
-    const response = await ApiCall("get", `/dishes/history?${params.toString()}`);
+    const response = await ApiCall(
+      "get",
+      `/dishes/history?${params.toString()}`
+    );
     console.log("From the API response:", response);
     return response.data;
   };
 
-  const { data: historyData = {}, isLoading, isError, error } = useQuery({
-    queryKey: ["dishHistory", searchDishName, searchDate, searchStatus, page, limit],
+  const {
+    data: historyData = {},
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: [
+      "dishHistory",
+      searchDishName,
+      searchDate,
+      searchStatus,
+      page,
+      limit,
+    ],
     queryFn: fetchHistory,
     keepPreviousData: true,
   });
@@ -43,54 +58,68 @@ const History = () => {
 
   const handleNextPage = () => {
     setPage((prevPage) => Math.min(prevPage + 1, totalPages));
-    queryClient.prefetchQuery(["dishHistory", searchDishName, searchDate, searchStatus, page + 1, limit], fetchHistory);
+    queryClient.prefetchQuery(
+      [
+        "dishHistory",
+        searchDishName,
+        searchDate,
+        searchStatus,
+        page + 1,
+        limit,
+      ],
+      fetchHistory
+    );
   };
 
   const handlePrevPage = () => setPage((prevPage) => Math.max(prevPage - 1, 1));
 
   const handleLimitChange = (event) => {
     setLimit(Number(event.target.value));
-    setPage(1); 
+    setPage(1);
   };
 
-  const filteredDishes = dishes.filter(dish => {
-    const matchesDishName = dish.name.toLowerCase().includes(searchDishName.toLowerCase());
-    const matchesDate = searchDate ? new Date(dish.updatedAt).toDateString() === searchDate.toDateString() : true;
-    const matchesStatus = searchStatus ? dish.status.toLowerCase().includes(searchStatus.toLowerCase()) : true; 
+  const filteredDishes = dishes.filter((dish) => {
+    const matchesDishName = dish.name
+      .toLowerCase()
+      .includes(searchDishName.toLowerCase());
+    const matchesDate = searchDate
+      ? new Date(dish.updatedAt).toDateString() === searchDate.toDateString()
+      : true;
+    const matchesStatus = searchStatus
+      ? dish.status.toLowerCase().includes(searchStatus.toLowerCase())
+      : true;
     return matchesDishName && matchesDate && matchesStatus;
   });
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4">Time sheet</h2>
+      <h1 className="text-center mb-4 head ">History</h1>
 
       <div className="mb-4 d-flex align-items-center">
-  <input
-    type="text"
-    className="form-control me-3 flex-fill history"
-    placeholder="Search by dish name..."
-    value={searchDishName}
-    onChange={(e) => setSearchDishName(e.target.value)}
-  />
-  <select
-    className="form-control me-3 flex-fill style history"
-    value={searchStatus}
-    onChange={(e) => setSearchStatus(e.target.value)}
-  >
-    <option value="">Select Status...</option>
-    <option value="cooking started">Cooking Started</option>
-    <option value="cooking ended">Cooking Ended</option>
-  </select>
-  <DatePicker
-    selected={searchDate}
-    onChange={(date) => setSearchDate(date)}
-    className="form-control flex-fill history"
-    placeholderText="Select a date..."
-    dateFormat="MMMM d, yyyy"
-    
-  />
-</div>
-
+        <input
+          type="text"
+          className="form-control me-3 flex-fill history"
+          placeholder="Search by dish name..."
+          value={searchDishName}
+          onChange={(e) => setSearchDishName(e.target.value)}
+        />
+        <select
+          className="form-control me-3 flex-fill style history"
+          value={searchStatus}
+          onChange={(e) => setSearchStatus(e.target.value)}
+        >
+          <option value="">Select Status...</option>
+          <option value="cooking started">Cooking Started</option>
+          <option value="cooking ended">Cooking Ended</option>
+        </select>
+        <DatePicker
+          selected={searchDate}
+          onChange={(date) => setSearchDate(date)}
+          className="form-control flex-fill history"
+          placeholderText="Select a date..."
+          dateFormat="MMMM d, yyyy"
+        />
+      </div>
 
       <div className="table-responsive">
         <table className="table table-bordered table-striped text-center">
@@ -155,7 +184,9 @@ const History = () => {
         >
           Prev
         </button>
-        <span>Page {page} of {totalPages}</span>
+        <span>
+          Page {page} of {totalPages}
+        </span>
         <button
           className="btn btn-primary"
           onClick={handleNextPage}

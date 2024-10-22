@@ -9200,8 +9200,8 @@ textarea.form-control-lg {
     border-color: rgba(255, 255, 255, 0.2) ;
     padding-left: 30px;
     color: #fff; }
-    .search-form .form-control:active, .search-form .form-control:focus {
-      border-color: rgba(255, 255, 255, 0.3) !important; }
+    /* .search-form .form-control:active, .search-form .form-control:focus {
+      border-color: rgba(255, 255, 255, 0.3) ; } */
     .search-form .form-control::-webkit-input-placeholder {
       color: rgba(255, 255, 255, 0.5); }
     .search-form .form-control:-ms-input-placeholder {
@@ -9597,13 +9597,18 @@ textarea.form-control-lg {
   content: ""; }
 
 .burger:before {
-  top: 4px; }
+  top: 4px; 
+  background: #fff !important;
+}
 
 .burger span {
-  top: 15px; }
+  top: 10px; 
+background: #fff !important;}
 
 .burger:after {
-  top: 26px; }
+  top: 26px; 
+  background: #fff !important;
+}
 
 /* Hover */
 .burger:hover:before {
@@ -10577,16 +10582,21 @@ textarea {
   font-weight: bold;
 }
 .search-input {
-  margin-right: 10px; /* Adjust spacing */
-  flex: 1; /* Allow the input fields to grow equally */
+  margin-right: 10px; 
+  flex: 1;
 }
 
 .search-input:last-child {
-  margin-right: 0; /* Remove margin on the last input */
+  margin-right: 0;
 }
 
             
 .form-control.history{
   
   width: 204px;
+}
+h1.head{
+  font-size: 25px;
+  font-weight: bold;
+  /* color: black; */
 }

@@ -94,7 +94,6 @@ const EditDish = ({ show, onHide, dishId }) => {
       return false;
     }
   
-    // If all validations pass, return true
     return true;
   };
 
@@ -130,7 +129,6 @@ const EditDish = ({ show, onHide, dishId }) => {
           />
         </div>
 
-        {/* Display existing ingredients */}
         <label>Ingredients</label>
 
         {updatedDish.ingredients.map((ingredient, index) => (

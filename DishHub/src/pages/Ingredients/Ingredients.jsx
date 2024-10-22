@@ -63,8 +63,8 @@ const Ingredients = () => {
   };
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ["ingredients"], // Unique key for the query
-    queryFn: fetchIngredients, // Function to fetch data
+    queryKey: ["ingredients"], 
+    queryFn: fetchIngredients, 
   });
 
   if (isLoading) {
@@ -89,7 +89,7 @@ const Ingredients = () => {
             <div className="heading">Category: Ingredients</div>
             <div>
               <button
-                // onClick={() => setModalVisible(true)}
+                
                 onClick={() => handleUpdate()}
                 className="btn btn-sm mb-5 btn-outline-primary"
               >
@@ -124,7 +124,7 @@ const Ingredients = () => {
                         <button
                           className="btn btn-primary btn-sm  " 
                           style={{ marginRight: '8px' }} 
-                          onClick={() => handleUpdate(ingredient)} // Pass the whole ingredient object
+                          onClick={() => handleUpdate(ingredient)} 
                         >
                           <i className="fas fa-edit"> Edit</i>
                         </button>
@@ -142,7 +142,7 @@ const Ingredients = () => {
                 </tbody>
               </table>
 
-              {/* Pagination Controls */}
+             
               <div className="mt-4 d-flex justify-content-between">
                 <button
                   className="btn btn-secondary"

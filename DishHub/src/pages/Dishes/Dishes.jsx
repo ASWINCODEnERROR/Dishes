@@ -6,8 +6,8 @@ import EditDish from "./EditDish";
 import CreateDish from "./CreateDish";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
+import './Dishes.css'
 
-// Loading Spinner Component
 const LoadingSpinner = () => (
   <div className="loading-spinner-container">
     <div className="spinner"></div>
@@ -56,7 +56,6 @@ const Dishes = () => {
     queryKey: ["dishes", params, debouncedSearchTerm],
     queryFn: fetchDishes,
     onError: (err) => {
-      // Set a message immediately when an error occurs
       setNoDishesMessage('No matching dishes found. Please try a different search.');
     },
   });
@@ -107,17 +106,18 @@ const Dishes = () => {
       <div className="section search-result-wrap">
         <div className="container">
           <div className="row">
-            <div className="col-12 d-flex justify-content-between align-items-center">
+            <div className="col-12 d-flex justify-content-sm-between justify-content-center align-items-center">
+            {/* <div className="col-12 d-flex justify-content-between align-items-center"> */}
               <div className="heading">
                 Category: Dishes
                 <form
                   action="#"
-                  className="search-form d-none d-lg-inline-block"
+                  className="search-form  d-lg-inline-block main-search"
                   style={{ position: "relative", width: "fit-content" }}
                 >
-                  <input
+                  <input id="nofocus"
                     type="text"
-                    className="search-form"
+                    className="search-form main-bar"
                     placeholder="Search..."
                     value={searchTerm}
                     onChange={(e) => {
@@ -150,7 +150,8 @@ const Dishes = () => {
                   />
                 </form>
               </div>
-              <div>
+              
+              <div className="main-btn">
                 <button
                   onClick={() => setCreateDishModalOpen(true)}
                   className="btn btn-sm mb-5 btn-outline-primary "
@@ -164,21 +165,19 @@ const Dishes = () => {
                   Ingredients
                 </Link>
               </div>
-            </div>
+              </div>
+            {/* </div>s */}
           </div>
 
           <div className="row posts-entry">
             <div className="col-lg-8">
-              {/* Show loading spinner only in the container */}
               {isLoading ? (
                 <LoadingSpinner />
               ) : error ? (
-                // Error block only if there's an error from API
                 <div className="error-message">
-                  The dish is unavailable
+                  The dish is unavailable!!!!!!!!!1
                 </div>
               ) : data?.length === 0 ? (
-                // Empty dishes message for search with no result
                 <div className="no-dishes-message ">
                                    The dish is unavailable
                 </div>
@@ -191,7 +190,7 @@ const Dishes = () => {
                     >
                       <a
                         href={`single.html?dishId=${dish._id}`}
-                        className="img-link me-4"
+                        className="img-link "
                       >
                         <img
                           src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIibPbOeDQQscm9g-fDNdCvROokQJukg8nYQ&s"
@@ -229,7 +228,7 @@ const Dishes = () => {
                           <p className="mb-0">
                             <button
                               onClick={() => handleDeleteDish(dish._id, dish.name)}
-                              className="btn btn-sm mt-2 btn-outline-secondary"
+                              className="btn btn-sm mt-2 btn-outline-danger"
                             >
                               Delete
                             </button>
@@ -245,7 +244,6 @@ const Dishes = () => {
         </div>
       </div>
 
-      {/* Modals */}
       {modalOpen && selectedDish && (
         <Ingedientmodal
           isOpen={modalOpen}
