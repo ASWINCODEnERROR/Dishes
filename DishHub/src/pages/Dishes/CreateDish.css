@@ -1,0 +1,64 @@
+/* General Modal Styling */
+.modal-dialog {
+    max-width: 600px; /* Max width for larger screens */
+    margin: 30px auto; /* Center the modal */
+  }
+  
+  .modal-content {
+    padding: 15px; /* Basic padding for content */
+  }
+  .remove{
+    display: flex;
+  }
+  
+  .modal-body {
+    padding: 10px 15px; /* Adjust padding for the body */
+  }
+  
+  @media (max-width: 768px) {
+    .modal-dialog {
+      max-width: 90%; /* Reduce the modal width for mobile */
+      margin: 15px auto; /* Less margin for smaller screens */
+    }
+    .remove{
+        /* border: 1px solid red; */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+  
+    .modal-body {
+      padding: 10px; /* Slightly reduce padding for better fit */
+    }
+  
+    .modal-header, .modal-footer {
+      padding: 10px 15px; /* Adjust header and footer padding */
+    }
+  
+    /* Ensure form controls scale appropriately */
+    .form-control {
+      font-size: 14px; /* Smaller font size for inputs on mobile */
+      padding: 8px; /* Reduce padding for inputs */
+    }
+  
+    /* Buttons */
+   
+    .btn-sm {
+      padding: 5px 10px; /* Smaller buttons get reduced padding */
+    }
+  
+    /* Adjust the modal title size */
+    .modal-title {
+      font-size: 18px; /* Smaller title on mobile */
+    }
+  
+    /* Ensure spacing between ingredients input and remove button looks good on small screens */
+    .d-flex {
+      flex-wrap: wrap; /* Allow ingredients and button to wrap if needed */
+    }
+  
+    .me-2 {
+      margin-right: 10px;
+    }
+  }

@@ -3,6 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
 import Swal from "sweetalert2";
 import EditInc from "./EditInc";
+import './Ingredients.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
+
 
 const ITEMS_PER_PAGE = 5;
 
@@ -85,13 +89,13 @@ const Ingredients = () => {
     <div className="section search-result-wrap">
       <div className="container">
         <div className="row">
-          <div className="col-12 d-flex justify-content-between align-items-center">
+          <div className="col-12 d-flex justify-content-between align-items-center ">
             <div className="heading">Category: Ingredients</div>
             <div>
               <button
                 
                 onClick={() => handleUpdate()}
-                className="btn btn-sm mb-5 btn-outline-primary"
+                className="btn btn-sm mb-5 btn-outline-primary ingredients"
               >
                 Add Ingredient
               </button>
@@ -121,12 +125,14 @@ const Ingredients = () => {
                       <td className="py-2 px-4">{ingredient.name}</td>
                       <td className="py-2 px-4">{ingredient.stockQuantity}</td>
                       <td className="py-2 px-4">
+                        <div className="action">
                         <button
-                          className="btn btn-primary btn-sm  " 
+                          className="btn btn-primary btn-sm  me-2" 
                           style={{ marginRight: '8px' }} 
                           onClick={() => handleUpdate(ingredient)} 
                         >
-                          <i className="fas fa-edit"> Edit</i>
+                          <i className="fas fa-edit"></i>
+                          <span className="d-none d-lg-inline"> Edit</span> 
                         </button>
                         <button
                           className="btn btn-danger btn-sm ml-10"
@@ -134,8 +140,10 @@ const Ingredients = () => {
                             handleDelete(ingredient.id || ingredient._id)
                           }
                         >
-                          Delete
+                         <i className="fas fa-trash"></i>
+                         <span className="d-none d-lg-inline"> Delete</span> 
                         </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

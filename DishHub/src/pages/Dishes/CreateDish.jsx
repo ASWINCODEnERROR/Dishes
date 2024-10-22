@@ -3,7 +3,7 @@ import Modal from "react-bootstrap/Modal";
 import { ApiCall } from "../../services/ApiCall"; 
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import Swal from 'sweetalert2'
-
+import './CreateDish.css'
 
 const CreateDish = ({ show, onHide }) => {
   const queryClient = useQueryClient();
@@ -107,7 +107,7 @@ const CreateDish = ({ show, onHide }) => {
           />
         </div>
         {newDish.ingredients.map((ingredient, index) => (
-          <div key={index} className="d-flex align-items-center mb-3">
+          <div key={index} className=" align-items-center mb-3 remove">
             <select
               name="ingredient"
               value={ingredient.ingredient}

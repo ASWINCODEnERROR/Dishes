@@ -208,7 +208,7 @@ const Dishes = () => {
                           Lorem ipsum dolor sit amet consectetur adipisicing elit.
                           Unde, nobis ea quis inventore vel voluptas.
                         </p>
-                        <div className="d-flex align-items-center">
+                        <div className="d-flex align-items-center main-buttons">
                           <p className="mb-0 me-2">
                             <button
                               onClick={() => handleDishClick(dish)}

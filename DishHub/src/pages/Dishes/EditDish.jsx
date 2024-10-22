@@ -132,7 +132,7 @@ const EditDish = ({ show, onHide, dishId }) => {
         <label>Ingredients</label>
 
         {updatedDish.ingredients.map((ingredient, index) => (
-          <div key={index} className="d-flex align-items-center mb-3">
+          <div key={index} className=" align-items-center mb-3 remove">
             <select
               name="ingredient"
               value={ingredient.ingredient}

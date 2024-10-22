@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import Spinner from "react-bootstrap/Spinner";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
-
+import './History.css'
 const formatDate = (dateString) => {
   return format(new Date(dateString), "MMMM dd, yyyy - HH:mm");
 };
@@ -95,14 +95,15 @@ const History = () => {
     <div className="container mt-5">
       <h1 className="text-center mb-4 head ">History</h1>
 
-      <div className="mb-4 d-flex align-items-center">
+      <div className="mb-4 d-flex align-items-center dish-name">
         <input
           type="text"
-          className="form-control me-3 flex-fill history"
+          className="form-control flex-fill history"
           placeholder="Search by dish name..."
           value={searchDishName}
           onChange={(e) => setSearchDishName(e.target.value)}
         />
+        <div className="history-form">
         <select
           className="form-control me-3 flex-fill style history"
           value={searchStatus}
@@ -119,6 +120,7 @@ const History = () => {
           placeholderText="Select a date..."
           dateFormat="MMMM d, yyyy"
         />
+        </div>
       </div>
 
       <div className="table-responsive">
