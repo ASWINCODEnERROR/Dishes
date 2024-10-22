@@ -1,0 +1,28 @@
+.history {
+    /* Optional: Add some margin or padding */
+    margin-bottom: 15px; /* For spacing on mobile */
+  }
+@media (max-width: 768px) {
+    .history-form{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* border: 1px solid red; */
+        width: 100%;
+        margin-bottom: 0;
+    }
+}
+@media (min-width: 768px) and (max-width: 980px) {
+    .history-form{
+        margin-left:15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* border: 1px solid red; */
+        width: 100%;
+        margin-bottom: 0;
+    }
+}
+
+
+      

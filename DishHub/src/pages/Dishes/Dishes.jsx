@@ -1,35 +1,73 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiCall } from "../../services/ApiCall";
 import Ingedientmodal from "./IngedientModal";
-import { useState } from "react";
 import EditDish from "./EditDish";
 import CreateDish from "./CreateDish";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
+import './Dishes.css'
+
+const LoadingSpinner = () => (
+  <div className="loading-spinner-container">
+    <div className="spinner"></div>
+  </div>
+);
 
 const Dishes = () => {
   const queryClient = useQueryClient();
-  const fetchDishes = async () => {
-    const response = await ApiCall("get", "/dishes");
-    console.log("Fetching dishes...");
-    if (response.status) {
-      return response.data;
-    } else {
-      throw new Error(response.message);
-    }
-  };
   const [modalOpen, setModalOpen] = useState(false);
   const [createDishModalOpen, setCreateDishModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [params, setParams] = useState({});
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 100); 
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const fetchDishes = async () => {
+    try {
+      const response = await ApiCall("get", `/dishes`, {}, { ...params, searchQuery: debouncedSearchTerm });
+  
+      if (!response.status) {
+        throw new Error(response.message || "Unexpected error occurred");
+      }
+  
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching dishes:", error);
+      if (error.response && error.response.status === 404) {
+        return []; 
+      }
+      throw new Error("Failed to fetch dishes.");
+    }
+  };
+  
+  
+
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["dishes", params, debouncedSearchTerm],
+    queryFn: fetchDishes,
+    onError: (err) => {
+      setNoDishesMessage('No matching dishes found. Please try a different search.');
+    },
+  });
 
   const handleDishClick = (dish) => {
     setSelectedDish(dish);
     setModalOpen(true);
   };
+
   const handleCloseModal = () => {
     setModalOpen(false);
+    setEditModalOpen(false);
     setSelectedDish(null);
   };
 
@@ -40,8 +78,8 @@ const Dishes = () => {
 
   const handleDeleteDish = async (id, name) => {
     const result = await Swal.fire({
-      title: "Are you sure you want to delete this ingredient?",
-      text: `do you want to delete ${name}.`,
+      title: "Are you sure you want to delete this dish?",
+      text: `Do you want to delete ${name}?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
@@ -58,39 +96,62 @@ const Dishes = () => {
           throw new Error(response.message || "Failed to delete the dish.");
         }
       } catch (error) {
-        console.error("Error deleting dish:", error);
-        Swal.fire(
-          "Error!",
-          `Failed to delete ${name}: ${error.message}`,
-          "error"
-        );
+        Swal.fire("Error!", `Failed to delete ${name}: ${error.message}`, "error");
       }
     }
   };
 
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["dishes"],
-    queryFn: fetchDishes,
-  });
-
-  if (isLoading) return <div className="text-center text-lg">Loading...</div>;
-  if (error)
-    return (
-      <div className="text-center text-red-500">
-        Error loading dishes: {error.message}
-      </div>
-    );
-
-  if (!data || !Array.isArray(data))
-    return <div className="text-center text-gray-500">No dishes available</div>;
   return (
     <>
       <div className="section search-result-wrap">
         <div className="container">
           <div className="row">
-            <div className="col-12 d-flex justify-content-between align-items-center">
-              <div className="heading">Category: Dishes</div>
-              <div>
+            <div className="col-12 d-flex justify-content-sm-between justify-content-center align-items-center">
+            {/* <div className="col-12 d-flex justify-content-between align-items-center"> */}
+              <div className="heading">
+                Category: Dishes
+                <form
+                  action="#"
+                  className="search-form  d-lg-inline-block main-search"
+                  style={{ position: "relative", width: "fit-content" }}
+                >
+                  <input id="nofocus"
+                    type="text"
+                    className="search-form main-bar"
+                    placeholder="Search..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value.trimStart());
+                      setParams({
+                        ...params,
+                        page: 1,
+                      });
+                    }}
+                    style={{
+                      border: "1px solid gray",
+                      color: "black",
+                      margin: "10px 15px",
+                      paddingLeft: "35px",
+                      paddingRight: "10px",
+                      height: "40px",
+                      borderRadius: "5px",
+                    }}
+                  />
+                  <span
+                    className="bi bi-search"
+                    style={{
+                      color: "gray",
+                      position: "absolute",
+                      left: "25px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                </form>
+              </div>
+              
+              <div className="main-btn">
                 <button
                   onClick={() => setCreateDishModalOpen(true)}
                   className="btn btn-sm mb-5 btn-outline-primary "
@@ -104,80 +165,92 @@ const Dishes = () => {
                   Ingredients
                 </Link>
               </div>
-            </div>
+              </div>
+            {/* </div>s */}
           </div>
+
           <div className="row posts-entry">
             <div className="col-lg-8">
-              <ul className="space-y-4">
-                {/* <div className="blog-entry d-flex blog-entry-search-item"> */}
-                {data.map((dish) => (
-                  <div
-                    key={dish._id}
-                    className="blog-entry d-flex blog-entry-search-item"
-                  >
-                    <a
-                      href={`single.html?dishId=${dish._id}`}
-                      className="img-link me-4"
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : error ? (
+                <div className="error-message">
+                  The dish is unavailable!!!!!!!!!1
+                </div>
+              ) : data?.length === 0 ? (
+                <div className="no-dishes-message ">
+                                   The dish is unavailable
+                </div>
+              ) : (
+                <ul className="space-y-4">
+                  {data.map((dish) => (
+                    <div
+                      key={dish._id}
+                      className="blog-entry d-flex blog-entry-search-item"
                     >
-                      {/* <img src={dish.image || 'default_image.jpg'} alt={dish.name} className="img-fluid" /> */}
-                      <img
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIibPbOeDQQscm9g-fDNdCvROokQJukg8nYQ&s"
-                        alt={dish.name}
-                        className="img-fluid"
-                      />
-                    </a>
-                    <div>
-                      <h2>
-                        <a href={`single.html?dishId=${dish._id}`}>
-                          {dish.name}
-                        </a>
-                      </h2>
-                      <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Unde, nobis ea quis inventore vel voluptas.
-                      </p>
-                      <div className="d-flex align-items-center">
-                        <p className="mb-0 me-2">
-                          <button
-                            onClick={() => handleDishClick(dish)}
-                            className="btn btn-sm mt-2 btn-outline-primary"
-                          >
-                            set qty
-                          </button>
+                      <a
+                        href={`single.html?dishId=${dish._id}`}
+                        className="img-link "
+                      >
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIibPbOeDQQscm9g-fDNdCvROokQJukg8nYQ&s"
+                          alt={dish.name}
+                          className="img-fluid"
+                        />
+                      </a>
+                      <div>
+                        <h2>
+                          <a href={`single.html?dishId=${dish._id}`}>
+                            {dish.name}
+                          </a>
+                        </h2>
+                        <p>
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                          Unde, nobis ea quis inventore vel voluptas.
                         </p>
-                        <p className="mb-0 me-2">
-                          <button
-                            onClick={() => handleEditClick(dish._id)}
-                            // onClick={() => console.log(dish)}
-                            className="btn btn-sm mt-2 btn-outline-secondary"
-                          >
-                            Edit
-                          </button>
-                        </p>
-                        <p className="mb-0">
-                          <button
-                            onClick={() =>
-                              handleDeleteDish(dish._id, dish.name)
-                            } // Pass both _id and name
-                            className="btn btn-sm mt-2 btn-outline-secondary"
-                          >
-                            Delete
-                          </button>
-                        </p>
+                        <div className="d-flex align-items-center main-buttons">
+                          <p className="mb-0 me-2">
+                            <button
+                              onClick={() => handleDishClick(dish)}
+                              className="btn btn-sm mt-2 btn-outline-primary"
+                            >
+                              Set qty
+                            </button>
+                          </p>
+                          <p className="mb-0 me-2">
+                            <button
+                              onClick={() => handleEditClick(dish._id)}
+                              className="btn btn-sm mt-2 btn-outline-secondary"
+                            >
+                              Edit
+                            </button>
+                          </p>
+                          <p className="mb-0">
+                            <button
+                              onClick={() => handleDeleteDish(dish._id, dish.name)}
+                              className="btn btn-sm mt-2 btn-outline-danger"
+                            >
+                              Delete
+                            </button>
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </ul>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <Ingedientmodal
-        isOpen={modalOpen}
-        onClose={handleCloseModal}
-        dish={selectedDish}
-      />
+
+      {modalOpen && selectedDish && (
+        <Ingedientmodal
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          dish={selectedDish}
+        />
+      )}
       {editModalOpen && selectedDish && (
         <EditDish
           show={editModalOpen}
@@ -185,12 +258,14 @@ const Dishes = () => {
           dishId={selectedDish}
         />
       )}
-      <CreateDish
-        show={createDishModalOpen}
-        onHide={() => setCreateDishModalOpen(false)}
-      />
+      {createDishModalOpen && (
+        <CreateDish
+          show={createDishModalOpen}
+          onHide={() => setCreateDishModalOpen(false)}
+        />
+      )}
     </>
-  ); 
+  );
 };
 
 export default Dishes;

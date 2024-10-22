@@ -1,0 +1,92 @@
+/* Header.css */
+
+.site-mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white; /* Set background color to white */
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.4s ease-in-out;
+}
+
+
+/* Other styles remain the same */
+  
+  .site-mobile-menu.active {
+    display: block; /* Show the mobile menu */
+    transform: translateX(50%); /* Slide in halfway */
+  }
+  
+  .site-mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Center the close button vertically */
+    padding: 10px 20px; /* Padding for the header */
+    background: rgba(255, 255, 255, 0.7); /* Slightly transparent header background */
+  }
+  
+  .site-mobile-menu-close {
+    /* border: 2px solid red; */
+    color: rgb(255, 255, 255); /* White close icon */
+    font-size: 24px; /* Bigger close icon */
+    cursor: pointer; /* Pointer cursor for the close button */
+  }
+  
+  .site-mobile-menu-body {
+    padding: 60px 20px 20px; /* Padding around the menu items */
+  }
+  
+  .site-menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .site-menu li {
+    margin: 20px 0; /* Spacing between menu items */
+  }
+  
+  .site-menu a {
+    
+    color: rgb(0, 0, 0); /* Change link color for mobile menu */
+    text-decoration: none;
+    font-size: 20px; /* Larger font size for links */
+    transition: color 0.3s; /* Smooth color transition */
+  }
+  
+  .site-menu a:hover {
+    color: #ffcc00; /* Highlight color on hover */
+  }
+  
+  /* For the burger icon */
+  .burger {
+    cursor: pointer;
+    position: relative; /* Needed for positioning the burger lines */
+  }
+  
+  .burger span {
+    display: block;
+    width: 30px; /* Width of the lines */
+    height: 3px; /* Height of the lines */
+    /* background: white; Color of the burger lines */
+    margin: 5px auto; /* Center the lines */
+    transition: transform 0.3s ease; /* Smooth transition */
+  }
+  
+  /* When the menu is active, we can rotate the burger lines */
+  .burger.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg); /* Top line */
+  }
+  
+  .burger.active span:nth-child(2) {
+    opacity: 0; /* Middle line disappears */
+  }
+  
+  .burger.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg); /* Bottom line */
+  }
+  

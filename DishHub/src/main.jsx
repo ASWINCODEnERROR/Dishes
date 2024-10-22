@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import Dishes from "./pages/Dishes/Dishes.jsx";
 import Header from "./layouts/Header.jsx";
 import Ingredients from "./pages/Ingredients/Ingredients.jsx";
-import Ingedientmodal from "./pages/Dishes/Ingedientmodal.jsx";
+// import Ingedientmodal from "./pages/Dishes/Ingedientmodal.jsx";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")).render(
@@ -19,5 +19,5 @@ createRoot(document.getElementById("root")).render(
        
       </BrowserRouter>
     </QueryClientProvider>
-  // </StrictMode>
+   </StrictMode>
 );
